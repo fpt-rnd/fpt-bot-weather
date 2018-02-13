@@ -2,13 +2,16 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const request = require('request')
+const moment = require('moment');
+
 app.use(bodyParser.json())
 app.set('port', (process.env.PORT || 5000))
 
 const REQUIRE_AUTH = true
 const AUTH_TOKEN = 'botweather'
-const WEATHER_API_KEY = 'b8ac2a258d1c35981149e5b29a8fa5a5';
+const WEATHER_API_KEY = '7a7b3e413b6d4b28ad675906181302';
 const GOOGLE_API_KEY = 'AIzaSyDIJrE4kZI7w7jBGxQbmGneMQ3ZCSmgZ5o';
+const WUNDERGROUND_API_KEY = 'e41ad5ce5cd14bff'
 
 const WEATHERUNLOCKED_API_ID = 'ffe4e5e0';
 const WEATHERUNLOCKED_API_KEY = 'a1f782e71cfd9cc75b1f26b5b8c2a766';
@@ -63,36 +66,90 @@ app.post('/webhook', function (req, res) {
             let json = JSON.parse(body);
             
             return res.status(200).json({
-              speech: msg,
-              displayText: msg,
-              source: 'weather'});
+              speech: 'success',
+              displayText: 'success',
+              source: 'webhook'});
           } else {
             return res.status(400).json({
               source: 'webhook',
               speech: 'I failed to look up the weather of this location.',
-              displayText: webhookReply
+              displayText: 'I failed to look up the weather of this location.'
             });
           }})
       } else {
         return res.status(400).json({
           source: 'webhook',
           speech: 'I failed to look up the city name.',
-          displayText: webhookReply
+          displayText: 'I failed to look up the city name.'
         });
       }})
   }
-  // parameters are stored in req.body.result.parameters
-  var userName = req.body.result.parameters['given-name']
-  var webhookReply = 'Hello ' + userName + '! Welcome from the webhook.'
 
-  // the most basic response
-  res.status(200).json({
-    source: 'webhook',
-    speech: webhookReply,
-    displayText: webhookReply
-  })
+  if (req.body.result.parameters['geo-city'] !== 'undefined') {
+    let city = req.body.result.parameters['geo-city'];
+    let day;
+    
+    if (req.body.result.parameters.date !== 'undefined') {
+      day = req.body.result.parameters.date;
+    }
+
+    // get weather forecast at date 
+    getWeather(city, day).then((output) => {
+      if (output.status) {
+        var outputWeather = 'The weather forecast in ' + city + ' is: ' + output.FeelsLikeC + ' C';
+        return res.status(200).json({
+          source: 'webhook',
+          speech: outputWeather,
+          displayText: outputWeather});
+      } else {
+        return res.status(400).json({
+          source: 'webhook',
+          speech: 'Can\'t get the weather',
+          displayText: 'Can\'t get the weather'});
+      }
+    });
+  }
 })
 
 app.listen(app.get('port'), function () {
   console.log('* Webhook service is listening on port:' + app.get('port'))
 })
+
+var getWeather = function(location, date) {
+  return new Promise((resolve, reject) => {
+    let today = moment();
+    // if (today == date) {
+    //   restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WEATHER_API_KEY}&q=${location}&date=${date}&format=json`;
+    // } else {
+    //   restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${WEATHER_API_KEY}&q=${location}&date=${date}&format=json`;
+    // }
+    let diffDay = today.diff(date, 'days');
+    let restUrl;
+
+    if (diffDay == 0) {
+      restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    } else if (diffDay > 0) {
+      restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    } else {
+      restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    }
+
+    request.get(restUrl, (err, response, body) => {
+      let result = {
+        'status' : true,
+        'FeelsLikeC': ''
+      }
+      if (!err && response.statusCode == 200) {
+        let json = JSON.parse(body);
+        if (json.data.weather[0].FeelsLikeC !== 'undefined') {
+          result.FeelsLikeC = json.data.weather[0].maxtempC;
+        } else {
+          result.FeelsLikeC = json.data.weather[0].FeelsLikeC;
+        }
+        resolve(result);
+      } else {
+        result.status = false;
+        reject(result);
+      }})
+    })
+}
