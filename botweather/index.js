@@ -2,17 +2,18 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
+const controllerLocation = require('./controller/controllerLocation')
+const templateLocation = require('./controller/templateLocation')
+const controllerWeather = require('./controller/controllerWeather')
+const templateWeather = require('./controller/templateWeather')
+
 app.use(bodyParser.json())
 app.set('port', (process.env.PORT || 5000))
 
 const REQUIRE_AUTH = true
 const AUTH_TOKEN = 'an-example-token'
-const GOOGLE_API_KEY = 'AIzaSyDJWvFrA0oALL2-OtMRKiW0kqWIbuu2Yfc'
-const WUNDERGROUND_API_KEY = 'e41ad5ce5cd14bff'
 
-var lat
-var long
-var address
+var lat, long, address
 
 app.get('/', function (req, res) {
   res.send('Use the /webhook endpoint.')
@@ -24,8 +25,8 @@ app.get('/webhook', function (req, res) {
 app.post('/webhook', function (req, res) {
   // we expect to receive JSON data from api.ai here.
   // the payload is stored on req.body
-  console.log(req.body)
-  
+  //console.log(req.body)
+
   // we have a simple authentication
   if (REQUIRE_AUTH) {
     if (req.headers['auth-token'] !== AUTH_TOKEN) {
@@ -53,96 +54,60 @@ app.post('/webhook', function (req, res) {
       })
       break
     case 'today':
-      getWether(lat, long, address, res, 'today')
-      break
     case 'tomorrow':
-      getWether(lat, long, address, res, 'tomorrow')
-      break
     case 'next_tomorrow':
-      getWether(lat, long, address, res, 'next_tomorrow')
+      controllerWeather.getWetherWithApiWeather(lat, long, (result) => {
+        if (result) {
+          templateWeather.isDataWeather(res, req.body.result.action, result, address)
+        } else {
+          templateWeather.isNotDataWeather(res)
+        }
+      })
       break
     default:
       getLocation(req, res)
       break
   }
-
 })
+
+app.post('/getLocationWithTextAddress', function (req, res) {
+  controllerLocation.getLocationWithTextAddress(req.body.location, function (result) {
+    res.send(result);
+  });
+});
 
 app.listen(app.get('port'), function () {
   console.log('* Webhook service is listening on port:' + app.get('port'))
 })
 
-var getLocation = (req, res) => { 
-
-  if(req.body.result.action === 'get_location_input_text') {
+var getLocation = (req, res) => {
+  if (req.body.result.action === 'get_location_input_text') {
     let textLocation = req.body.originalRequest.data.message.text
     let queryTextLocation = textLocation.replace(/ /g, '+')
-    let apiTextAddress = `https://maps.google.com/maps/api/geocode/json?address=${queryTextLocation}&sensor=false`
 
-    request.get(apiTextAddress, (err, response, body) => {
-      let data = JSON.parse(body);
-      if(!err && response.statusCode === 200 && data.status !== 'ZERO_RESULTS') {
-        lat = data.results[0].geometry.location.lat
-        long = data.results[0].geometry.location.lng
-        address = data.results[0].formatted_address
-
-        getTemplateWeather(res, address)
-        //getWether(lat, long, address, res)
-        
+    controllerLocation.getLocationWithTextAddress(queryTextLocation, (result) => {
+      if (result.status === 'OK') {
+        lat = result.lat
+        long = result.lng
+        address = result.address
+        templateLocation.isLocation(res, address)
       } else {
-        res.status(200).json({
-          source: 'webhook',
-          speech: '',
-          data: {
-            facebook: {
-              attachment: {
-                type: "template",
-                payload: {
-                  template_type: "button",
-                  text: "Location is not found. Would you like to enter location again?",
-                  buttons: [
-                    {
-                      type: "postback",
-                      payload: "location",
-                      title: "Yes"
-                    },
-                    {
-                      type: "postback",
-                      payload: "No",
-                      title: "No"
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          displayText: 'OK'
-        })
+        templateLocation.isNotLocation(res)
       }
     })
-  } else if(req.body.originalRequest.data.postback) {
+
+  } else if (req.body.originalRequest.data.postback) {
     //facebook location events
-    if(req.body.originalRequest.data.postback.payload === 'FACEBOOK_LOCATION') {
+    if (req.body.originalRequest.data.postback.payload === 'FACEBOOK_LOCATION') {
       lat = req.body.originalRequest.data.postback.data.lat
       long = req.body.originalRequest.data.postback.data.long
 
-      //call api adress
-      let apiAddress = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&sensor=false&key=${GOOGLE_API_KEY}`
-
-      request.get(apiAddress, (err, response, body) => {
-        let data = JSON.parse(body);
-        if(!err && response.statusCode === 200 && data.status !== 'INVALID_REQUEST') {
-          address = data.results[1].formatted_address;
-
-          getTemplateWeather(res, address)
-          //getWether(lat, long, address, res)
-          
+      controllerLocation.getLocationWithQuickReply(lat, long, (result) => {
+        if (result.status === 'OK') {
+          address = result.address
+          templateLocation.isLocation(res, address)
         } else {
-          res.status(200).json({
-            source: 'webhook',
-            speech: 'Location is not found.',
-            displayText: 'OK'
-          })
+          templateLocation.isNotLocation(res)
         }
       })
     }
@@ -151,91 +116,5 @@ var getLocation = (req, res) => {
       status: 'OK'
     })
   }
-}
-
-var getTemplateWeather = (res, address) => {
-  res.status(200).json({
-    source: 'webhook',
-    speech: '',
-    data: {
-      facebook: {
-        attachment: {
-          type: "template",
-          payload: {
-            template_type: "button",
-            text: `Please choose date on which you want to get weather forecast in: ${address}`,
-            buttons: [
-              {
-                type: "postback",
-                payload: "Today",
-                title: "Today"
-              },
-              {
-                type: "postback",
-                payload: "Tomorrow",
-                title: "Tomorrow"
-              },
-              {
-                type: "postback",
-                payload: "Next Tomorrow",
-                title: "Next Tomorrow"
-              }
-            ]
-          }
-        }
-      }
-    },
-    displayText: 'OK'
-  })
-}
-
-var getWether = (lat, long, address, res, day) => {
-    //call api weather
-  let apiWeather = `http://api.wunderground.com/api/${WUNDERGROUND_API_KEY}/conditions/forecast/q/${lat},${long}.json`
-
-  request.get(apiWeather, (err, response, body) => {
-    let data = JSON.parse(body);
-
-    var weatherDay
-    var forecastDay
-    if(!err && response.statusCode === 200 && !data.response.error) {
-      switch (day) {
-        case 'today':
-          weatherDay = 0
-          forecastDay = 0
-          break
-        case 'tomorrow':
-          weatherDay = 2
-          forecastDay = 1
-          break
-        case 'next_tomorrow':
-          weatherDay = 4
-          forecastDay = 2
-          break
-        default:
-          break
-      }
-      let weather = data.forecast.simpleforecast.forecastday[forecastDay].conditions
-      let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}C`
-      //let relative_humidity = data.current_observation.relative_humidity
-      let forecast = `\r\n- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext}\r\n`
-                    +`- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext_metric}\r\n`
-
-      res.status(200).json({
-        source: 'webhook',
-        speech: `Your location: ${address}\r\n`
-        + `Weather: ${weather}\r\n`
-        + `Temperature: ${temperature}\r\n`
-        + `Forecast: ${forecast}\r\n`,
-        displayText: `Your location`
-      })
-    } else {
-      res.status(200).json({
-        source: 'webhook',
-        speech: 'No data weather forecast.',
-        displayText: 'OK'
-      })
-    }
-  })
 }
 
