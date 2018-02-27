@@ -43,18 +43,26 @@ app.post('/webhook', function (req, res) {
       location = req.body.result.parameters['location'];
       startDate = req.body.result.parameters['startDate'];
       endDate = req.body.result.parameters['endDate'];
+      
       utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function(result) {
         return result.res;
       });
       break;
-    case 'weather-location-date':
+    case 'weather.location.date':
       location = req.body.result.parameters['location'];
       date = req.body.result.parameters['date'];
-      utilsIndex.getWeatherLocationWithDate(res, location, date, function(result) {
+      utilsIndex.getWeatherLocationWithDate(res, location, date, function (result) {
         return result.res;
       });
       break;
-    case 'weather-city-today':
+    case 'weather.forecast.today':
+    case 'weather.forecast.tomorrow':
+    case 'weather.forecast.next.tomorrow':
+      utilsIndex.getWeatherCityDay(req, res, reqAction);
+      break;
+    case 'get.location.input.text':
+    case 'facebook.location':
+      utilsIndex.getLocation(req, res);
       break;
     case 'weather.location.next':
     location = req.body.result.parameters['location'];

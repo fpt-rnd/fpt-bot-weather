@@ -6,9 +6,11 @@ const WUNDERGROUND_API_KEY = 'e41ad5ce5cd14bff'
 const WEATHERUNLOCKED_API_ID = 'ffe4e5e0';
 const WEATHERUNLOCKED_API_KEY = 'a1f782e71cfd9cc75b1f26b5b8c2a766';
 
+const GOOGLE_API = 'https://maps.google.com/maps/api/geocode/json'
 
 module.exports = {
     AUTH_TOKEN: AUTH_TOKEN,
+    GOOGLE_API: GOOGLE_API,
     WEATHER_API_KEY: WEATHER_API_KEY,
     GOOGLE_API_KEY: GOOGLE_API_KEY,
     WUNDERGROUND_API_KEY: WUNDERGROUND_API_KEY,
