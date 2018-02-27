@@ -37,10 +37,12 @@ app.post('/webhook', function (req, res) {
   console.log('* Received action -- %s', req.body.result.action)
 
   let reqAction = req.body.result.action;
-  let location, date;
+  let location, date, startDate, endDate;
   switch (reqAction) {
-    case 'weather-location-from-to':
+    case 'weather.location.from.to':
       location = req.body.result.parameters['location'];
+      startDate = req.body.result.parameters['startDate'];
+      endDate = req.body.result.parameters['endDate'];
       utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function(result) {
         return result.res;
       });
@@ -53,6 +55,13 @@ app.post('/webhook', function (req, res) {
       });
       break;
     case 'weather-city-today':
+      break;
+    case 'weather.location.next':
+    location = req.body.result.parameters['location'];
+    let days = req.body.result.parameters['days'];
+    utilsIndex.getWeatherLocationNext(res, location, days, function(result) {
+      return result.res;
+    })
       break;
     default:
       break;

@@ -15,7 +15,7 @@ exports.getLocationWithAddress = function(address, callback) {
         if (!err && response.statusCode == 200) {
             let json = JSON.parse(body);
             let city = json.results[0].address_components[0].short_name;
-            
+
             result.status = true;
             result.location = city;
             return callback(result);
