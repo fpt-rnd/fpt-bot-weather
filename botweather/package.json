@@ -9,6 +9,7 @@
     "moment": "^2.20.1",
     "mongoose": "^5.0.4",
     "nodemon": "^1.14.12",
+    "path": "^0.12.7",
     "request": "^2.83.0",
     "self-reload-json": "^0.4.0",
     "validator": "^9.4.0"
