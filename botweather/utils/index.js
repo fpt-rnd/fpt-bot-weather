@@ -33,14 +33,14 @@ exports.getWeatherLocationWithDate = function (res, location, date, callback) {
 }
 
 exports.getWeatherLocationFromTo = function (res, location, startDate, endDate, callback) {
-    validator.validate('location', location, function (isValid) {
+    validator.validate('location', location, function (isValid) {        
         if (isValid.status) {
             validator.validate('date', startDate, function (isValidStartDate) {
                 if (isValidStartDate.status) {
                     validator.validate('date', endDate, function (isValidEndDate) {
                         if (isValidEndDate.status) {
                             weather.getWeatherLocationFromTo(isValid.location, startDate, endDate, function (weatherInDateRange) {
-                                if (weatherInDateRange.status) {
+                                if (weatherInDateRange.status) {                                    
                                     let outputWeather = '';
                                     if (Array.isArray(weatherInDateRange.FeelsLikeC)) {
                                         weatherInDateRange.FeelsLikeC.forEach(element => {
