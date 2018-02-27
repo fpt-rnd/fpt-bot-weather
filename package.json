@@ -16,7 +16,8 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "node test.js"
   },
   "keywords": [
     "api.ai",
@@ -26,5 +27,13 @@
     "facebook"
   ],
   "author": "Global Chatbot",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tctav-rnd/node-training.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tctav-rnd/node-training/issues"
+  },
+  "homepage": "https://github.com/tctav-rnd/node-training#readme"
 }
