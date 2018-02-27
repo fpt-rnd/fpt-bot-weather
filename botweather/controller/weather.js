@@ -7,12 +7,14 @@ exports.getWeatherLocationWithDate = function (location, date, callback) {
 
   let today = moment();
   let restUrl;
+  let temp = 'local';
   let diffDay = today.diff(date, 'days');
-  // console.log('diffday: ' + diffDay);
+//   console.log('diffday: ' + diffDay);
 
   if (diffDay == 0) {
     restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
   } else if (diffDay > 0) {
+      temp = 'past-weather';
     restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
   } else {
     restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
@@ -24,19 +26,29 @@ exports.getWeatherLocationWithDate = function (location, date, callback) {
       "reason": "",
       "FeelsLikeC": ""
     }
-    if (!err && response.statusCode == 200) {
-      let json = JSON.parse(body);
-      // console.log(json.data);
-      if (json.data.current_condition[0].FeelsLikeC !== 'undefined') {
-        result.FeelsLikeC = json.data.current_condition[0].FeelsLikeC;
-      } else {
-        result.FeelsLikeC = json.data.current_condition[0].maxtempC;
-      }
-      result.status = true;
-      return callback(result);
+    let json = JSON.parse(body);
+    if (!json.data.error) {
+        switch (temp) {
+            case 'local':
+                if (json.data.current_condition[0].FeelsLikeC !== 'undefined') {
+                    result.FeelsLikeC = json.data.current_condition[0].FeelsLikeC;
+                } else {
+                    result.FeelsLikeC = json.data.current_condition[0].maxtempC;
+                }
+                result.status = true;
+                return callback(result);
+                break;
+            case 'past-weather':
+                let item = json.data.weather[0];
+                let tempC = (parseInt(item.maxtempC) + parseInt(item.mintempC)) / 2;
+                result.status = true;
+                result.FeelsLikeC = tempC;
+                return callback(result);
+                break;
+        }
     } else {
-      result.reason = 'Can\t find the weather of this location';
-      return callback(result);
+        result.reason = json.data.error;
+        return callback(result);
     }
   });
 }
