@@ -1,0 +1,30 @@
+{
+  "name": "botweather",
+  "version": "1.0.0",
+  "description": "Webhook for botweather using API.AI",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "moment": "^2.20.1",
+    "mongoose": "^5.0.4",
+    "nodemon": "^1.14.12",
+    "path": "^0.12.7",
+    "request": "^2.83.0",
+    "self-reload-json": "^0.4.0",
+    "validator": "^9.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "api.ai",
+    "NLP",
+    "nodejs",
+    "sample",
+    "facebook"
+  ],
+  "author": "Global Chatbot",
+  "license": "ISC"
+}
