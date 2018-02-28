@@ -1,0 +1,33 @@
+{
+  "id": "c9079c17-ac3a-4308-baff-ee72572d2bb4",
+  "name": "0.1 Confirm get started with weather forecast - No",
+  "auto": true,
+  "contexts": [
+    "ask-weather"
+  ],
+  "responses": [
+    {
+      "resetContexts": false,
+      "affectedContexts": [],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": [
+            "Bye Bye",
+            "GoodBye"
+          ]
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": false,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519791920,
+  "fallbackIntent": false,
+  "events": []
+}

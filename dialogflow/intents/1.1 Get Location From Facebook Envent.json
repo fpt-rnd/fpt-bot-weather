@@ -1,0 +1,41 @@
+{
+  "id": "8cf3667a-81d2-4a85-b154-4c11b07df0d0",
+  "name": "1.1 Get Location From Facebook Envent",
+  "auto": true,
+  "contexts": [
+    "weather"
+  ],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "facebook.location",
+      "affectedContexts": [
+        {
+          "name": "weather-ev",
+          "parameters": {},
+          "lifespan": 1
+        }
+      ],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519798476,
+  "fallbackIntent": false,
+  "events": [
+    {
+      "name": "FACEBOOK_LOCATION"
+    }
+  ]
+}

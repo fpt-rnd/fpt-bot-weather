@@ -1,0 +1,30 @@
+[
+  {
+    "id": "37cb5433-f2dc-4f9d-854d-b0eea877f391",
+    "data": [
+      {
+        "text": "What is the weather forecast in ",
+        "userDefined": false
+      },
+      {
+        "text": "Ho Chi Minh",
+        "alias": "location",
+        "meta": "@sys.any",
+        "userDefined": true
+      },
+      {
+        "text": " at ",
+        "userDefined": false
+      },
+      {
+        "text": "01/02/2018",
+        "alias": "date",
+        "meta": "@sys.any",
+        "userDefined": true
+      }
+    ],
+    "isTemplate": false,
+    "count": 0,
+    "updated": 1519701978
+  }
+]
