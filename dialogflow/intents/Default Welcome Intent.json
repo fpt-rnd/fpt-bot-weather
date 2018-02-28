@@ -1,0 +1,74 @@
+{
+  "id": "14d51492-83a1-4e0c-85de-978a7139b039",
+  "name": "Default Welcome Intent",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "input.welcome",
+      "affectedContexts": [
+        {
+          "name": "ask-weather",
+          "parameters": {},
+          "lifespan": 1
+        }
+      ],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 4,
+          "platform": "facebook",
+          "lang": "en",
+          "payload": {
+            "facebook": {
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "Hi, I\u0027m a BotWeather, Would you like to Get Started with weather forecast?",
+                  "buttons": [
+                    {
+                      "type": "postback",
+                      "payload": "Yes",
+                      "title": "Yes"
+                    },
+                    {
+                      "type": "postback",
+                      "payload": "No",
+                      "title": "No"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": [
+            "Hi, I\u0027m a BotWeather, Would you like to Get Started with weather forecast?",
+            "Hello, I\u0027m a BotWeather, Would you like to Get Started with weather forecast?",
+            "Good day, I\u0027m a BotWeather, Would you like to Get Started with weather forecast?",
+            "Greetings, I\u0027m a BotWeather, Would you like to Get Started with weather forecast?"
+          ]
+        }
+      ],
+      "defaultResponsePlatforms": {
+        "facebook": false
+      },
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": false,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519793276,
+  "fallbackIntent": false,
+  "events": [
+    {
+      "name": "WELCOME"
+    }
+  ]
+}

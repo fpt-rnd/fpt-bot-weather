@@ -1,0 +1,58 @@
+{
+  "id": "ff5acca1-717a-4935-a1ac-6dd65280f31a",
+  "name": "0.2 Confirm get started with weather forecast - Yes",
+  "auto": true,
+  "contexts": [
+    "ask-weather"
+  ],
+  "responses": [
+    {
+      "resetContexts": false,
+      "affectedContexts": [
+        {
+          "name": "weather",
+          "parameters": {},
+          "lifespan": 1
+        }
+      ],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 4,
+          "platform": "facebook",
+          "lang": "en",
+          "payload": {
+            "facebook": {
+              "text": "Which Location(City/District) you are interested in?",
+              "quick_replies": [
+                {
+                  "content_type": "location"
+                },
+                {
+                  "content_type": "text",
+                  "title": "Input location",
+                  "payload": "location"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {
+        "facebook": true
+      },
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519792667,
+  "fallbackIntent": false,
+  "events": []
+}

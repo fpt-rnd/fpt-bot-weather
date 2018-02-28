@@ -1,0 +1,46 @@
+{
+  "id": "36552986-1052-40c7-9cc5-048c0cb8c5a1",
+  "name": "1.0 User input text location (no choose event)",
+  "auto": true,
+  "contexts": [
+    "weather"
+  ],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "get.location.input.text",
+      "affectedContexts": [
+        {
+          "name": "weather-ev",
+          "parameters": {},
+          "lifespan": 1
+        }
+      ],
+      "parameters": [
+        {
+          "id": "a8494f5e-b436-4bfe-95f0-6be556e32502",
+          "required": false,
+          "dataType": "@sys.any",
+          "name": "any",
+          "value": "$any",
+          "isList": false
+        }
+      ],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519798560,
+  "fallbackIntent": false,
+  "events": []
+}

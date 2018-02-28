@@ -9,10 +9,13 @@ global.rootPath = __dirname;
 const utilsIndex = require(global.rootPath + '/utils/index');
 const utilsConstants = require(global.rootPath + '/utils/constants');
 
-app.use(bodyParser.json())
+// app.use(bodyParser.json())
+app.use(express.static(path.join(global.rootPath, 'public')));
+
 app.set('port', (process.env.PORT || 5000))
 
 app.get('/', function (req, res) {
+  console.log(bodyParser.json());
   res.send('Use the /webhook endpoint.')
 })
 app.get('/webhook', function (req, res) {
