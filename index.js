@@ -10,7 +10,7 @@ const utilsIndex = require(global.rootPath + '/utils/index');
 const utilsConstants = require(global.rootPath + '/utils/constants');
 
 // app.use(bodyParser.json())
-app.use('/public', express.static(path.join(global.rootPath, 'public')));
+app.use(express.static(path.join(global.rootPath, 'public')));
 
 app.set('port', (process.env.PORT || 5000))
 
