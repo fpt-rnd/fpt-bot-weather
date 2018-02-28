@@ -1,0 +1,61 @@
+{
+  "id": "7ee526fd-5056-412e-8d29-a03f7e1fb458",
+  "name": "2.4 Weather forecast - Others",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "affectedContexts": [],
+      "parameters": [],
+      "messages": [
+        {
+          "type": 4,
+          "platform": "facebook",
+          "lang": "en",
+          "payload": {
+            "facebook": {
+              "attachment": {
+                "type": "template",
+                "payload": {
+                  "template_type": "button",
+                  "text": "Others?",
+                  "buttons": [
+                    {
+                      "type": "postback",
+                      "payload": "special-date",
+                      "title": "Specific date"
+                    },
+                    {
+                      "type": "postback",
+                      "payload": "range-date",
+                      "title": "From-To"
+                    },
+                    {
+                      "type": "postback",
+                      "payload": "next-n-days",
+                      "title": "Next N days"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": false,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519722487,
+  "fallbackIntent": false,
+  "events": []
+}

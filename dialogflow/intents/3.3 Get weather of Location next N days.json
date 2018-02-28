@@ -1,0 +1,44 @@
+{
+  "id": "46dca686-4cf1-46ef-a704-b7c46f0d7da7",
+  "name": "3.3 Get weather of Location next N days",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "weather.location.next",
+      "affectedContexts": [],
+      "parameters": [
+        {
+          "id": "c3c71528-b59a-44d6-a90a-9c4116f76510",
+          "required": true,
+          "dataType": "@sys.any",
+          "name": "location",
+          "value": "$location"
+        },
+        {
+          "id": "9bac2dfb-c59a-413a-a780-4e5949a47f92",
+          "required": true,
+          "dataType": "@sys.number",
+          "name": "days",
+          "value": "$days"
+        }
+      ],
+      "messages": [
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": []
+        }
+      ],
+      "defaultResponsePlatforms": {},
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": true,
+  "webhookForSlotFilling": false,
+  "lastUpdate": 1519722655,
+  "fallbackIntent": false,
+  "events": []
+}
