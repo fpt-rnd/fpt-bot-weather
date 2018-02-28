@@ -1,0 +1,6 @@
+{
+  "name": "Webhook for BotWeather",
+  "description": "a sample webhook for BotWeather",
+  "repository": "https://github.com/tctav-rnd/node-training",
+  "keywords": ["api.ai", "webhook", "chatbot"]
+}
