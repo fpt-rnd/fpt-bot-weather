@@ -1,5 +1,5 @@
 const redis = require('redis');
-var client = redis.createClient();
+var client = redis.createClient(process.env.REDIS_URL);
 
 const FIRST_NAME = 'first_name';
 const LAST_NAME = 'last_name';
