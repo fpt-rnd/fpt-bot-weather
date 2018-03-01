@@ -100,7 +100,7 @@ exports.getWeatherLocationNext = function (res, location, days, callback) {
 }
 
 exports.getLocation = function (req, res, callback) {
-    if (req.body.result.action === 'get.location.input.text') {
+    if (req.body.result.action === 'get.location.input.text.no.ev' || req.body.result.action === 'get.location.input.text.ev') {
         let textLocation = req.body.originalRequest.data.message.text;
         let queryTextLocation = textLocation.replace(/ /g, '+');
 

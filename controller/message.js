@@ -1,4 +1,4 @@
-const templatefb = require('./templatefb')
+const templatefb = require('./responsetemplatefb')
 
 exports.sendMessages = function (responses, statusCode, platForm, type, context, callback) {
     responses.status(statusCode).json({
@@ -15,17 +15,17 @@ exports.sendMessagesChooseDate = function (responses, address, callback) {
     let quickReplies = [
         {
             content_type: "text",
-            payload: "Today",
+            payload: "get weather forecast today",
             title: "Today"
         },
         {
             content_type: "text",
-            payload: "Tomorrow",
+            payload: "get weather forecast tomorrow",
             title: "Tomorrow"
         },
         {
             content_type: "text",
-            payload: "Next Tomorrow",
+            payload: "get weather forecast next tomorrow",
             title: "Next Tomorrow"
         },
         {
@@ -35,7 +35,15 @@ exports.sendMessagesChooseDate = function (responses, address, callback) {
         }
     ];
 
-    templatefb.templateQuickReplyFB(responses, text, quickReplies);
+    let contextOut = [
+        {
+            name: "weather-ev",
+            lifespan: 1,
+            parameters: {}
+        }
+    ];
+
+    templatefb.templateQuickReplyFB(responses, text, quickReplies, contextOut);
 }
 
 var checkLocation = 0
@@ -43,53 +51,103 @@ exports.sendMessagesNotFoundLocation = function (responses) {
     checkLocation += 1
     if (checkLocation > 3) {
         checkLocation = 0
-        let text = 'You have entered the wrong address more than 3 times. Would you like to continue using BotWeather?'
-        let buttons = [
+        let speech = ''
+
+        let facebook = [
             {
-                type: "postback",
-                payload: "Yes",
-                title: "Yes"
-            },
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "button",
+                        text: 'You have entered the wrong address more than 3 times. Would you like to continue using BotWeather?',
+                        buttons: [
+                            {
+                                type: "postback",
+                                payload: "Yes",
+                                title: "Yes"
+                            },
+                            {
+                                type: "postback",
+                                payload: "No",
+                                title: "No"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+
+        let contextOut = [
             {
-                type: "postback",
-                payload: "No",
-                title: "No"
+                name: "ask-weather",
+                lifespan: 1,
+                parameters: {}
             }
         ];
 
-        templatefb.templateTypeButtonFB(responses, text, buttons);
+        templatefb.templateTypeButtonFB(responses, speech, facebook, contextOut);
     } else {
-        let text = 'Location is not found. Would you like to enter location again?'
-        let buttons = [
+        let speech = 'Location is not found. Enter location again?'
+        let contextOut = [
             {
-                type: "postback",
-                payload: "location",
-                title: "Yes"
+                name: "weather-ev",
+                lifespan: 0,
+                parameters: {}
             },
             {
-                type: "postback",
-                payload: "No",
-                title: "No"
+                name: "weather-bt",
+                lifespan: 10,
+                parameters: {}
             }
-        ];
+        ]
 
-        templatefb.templateTypeButtonFB(responses, text, buttons);
+        templatefb.templateMessages(responses, speech, contextOut)
     }
 }
 
 exports.sendMessagesDataWeather = function (responses, result, address) {
-    responses.status(200).json({
-        source: 'webhook',
-        speech: `Your location: ${address}\r\n`
-            + result.data,
-        displayText: `Your location`
-    })
+    let contextOut = [
+        {
+            name: "ask-weather",
+            lifespan: 1,
+            parameters: {}
+        }
+    ]
+    let speech = ''
+
+    let facebook = [
+        {
+            text: `Your location: ${address}\r\n`
+                + result.data
+        },
+        {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: 'Would you like to continue using BotWeather?',
+                    buttons: [
+                        {
+                            type: "postback",
+                            payload: "Yes",
+                            title: "Yes"
+                        },
+                        {
+                            type: "postback",
+                            payload: "No",
+                            title: "No"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+
+    templatefb.templateTypeButtonFB(responses, speech, facebook, contextOut);
 }
 
 exports.sendMessagesNotFoundDataWeather = function (responses) {
-    responses.status(200).json({
-        source: 'webhook',
-        speech: 'No data weather forecast.',
-        displayText: 'OK'
-    })
+    let speech = 'No data weather forecast.'
+    let contextOut = []
+    templatefb.templateMessages(responses, speech, contextOut)
 }
