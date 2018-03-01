@@ -93,3 +93,21 @@ exports.sendMessagesNotFoundDataWeather = function (responses) {
         displayText: 'OK'
     })
 }
+
+exports.sendMesssageGreeting = function (responses, data) {
+    let text = 'Hi ' + data.first_name + ' ' + data.last_name + ', I\'m a BotWeather, Would you like to Get Started with weather forecast?'
+        let buttons = [
+            {
+                type: "postback",
+                payload: "location",
+                title: "Yes"
+            },
+            {
+                type: "postback",
+                payload: "No",
+                title: "No"
+            }
+        ];
+
+    templatefb.templateTypeButtonFB(responses, text, buttons);
+}

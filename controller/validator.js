@@ -52,3 +52,7 @@ var isValidDate = function(date, callback) {
 
 	return callback(result);
 }
+
+exports.isEmptyObject = function(obj) {
+	return !Object.keys(obj).length;
+  }

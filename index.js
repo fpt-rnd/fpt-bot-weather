@@ -36,6 +36,19 @@ app.post('/webhook', function (req, res) {
     return res.status(400).send('Bad Request')
   }
 
+  if (!req.body.originalRequest) {
+    console.log('Test on ApiAi');
+    // return res.status(400).send('Test on ApiAi');
+  } else {
+    if (req.body.result.action == 'greeting') {
+      // get user info base on chat platform
+      let originalRequest = req.body.originalRequest;
+      utilsIndex.greeting(res, originalRequest, function(result) {
+        return result.res;
+      })
+    }
+  }
+
   // the value of Action from api.ai is stored in req.body.result.action
   console.log('* Received action -- %s', req.body.result.action)
 
@@ -46,8 +59,8 @@ app.post('/webhook', function (req, res) {
       location = req.body.result.parameters['location'];
       startDate = req.body.result.parameters['startDate'];
       endDate = req.body.result.parameters['endDate'];
-      
-      utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function(result) {
+
+      utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function (result) {
         return result.res;
       });
       break;
@@ -68,11 +81,11 @@ app.post('/webhook', function (req, res) {
       utilsIndex.getLocation(req, res);
       break;
     case 'weather.location.next':
-    location = req.body.result.parameters['location'];
-    let days = req.body.result.parameters['days'];
-    utilsIndex.getWeatherLocationNext(res, location, days, function(result) {
-      return result.res;
-    })
+      location = req.body.result.parameters['location'];
+      let days = req.body.result.parameters['days'];
+      utilsIndex.getWeatherLocationNext(res, location, days, function (result) {
+        return result.res;
+      })
       break;
     default:
       break;
