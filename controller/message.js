@@ -151,3 +151,32 @@ exports.sendMessagesNotFoundDataWeather = function (responses) {
     let contextOut = []
     templatefb.templateMessages(responses, speech, contextOut)
 }
+
+exports.sendMesssageGreeting = function (responses, data) {
+    let contextOut = [];
+    let facebook = [
+        {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: 'Hi ' + data.first_name + ' ' + data.last_name + ', I\'m a BotWeather, Would you like to Get Started with weather forecast?',
+                    buttons: [
+                        {
+                            type: "postback",
+                            payload: "yes",
+                            title: "Yes"
+                        },
+                        {
+                            type: "postback",
+                            payload: "No",
+                            title: "No"
+                        }
+                    ]
+                }
+            }
+        }
+    ];
+
+    templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+}

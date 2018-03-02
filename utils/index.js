@@ -4,6 +4,7 @@ const message = require(global.rootPath + '/controller/message');
 const validator = require(global.rootPath + '/controller/validator');
 const weather = require(global.rootPath + '/controller/weather');
 const location = require(global.rootPath + '/controller/location');
+const utilsUserInfo = require(global.rootPath + '/controller/utils/userInfo');
 
 var lat, long, address
 
@@ -144,4 +145,27 @@ exports.getWeatherCityDay = function (req, res, reqAction) {
             message.sendMessagesNotFoundDataWeather(res)
         }
     })
+}
+
+exports.greeting = function (res, originalRequest, callback) {
+    utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
+        if (!result.status) {
+          utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
+            utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
+                let outputMessage = {
+                    'first_name': result.data.first_name,
+                    'last_name': result.data.last_name
+                }            
+                message.sendMesssageGreeting(res, outputMessage);
+              });
+          });
+        } else {
+            let outputMessage = {
+                'first_name': result.data.first_name,
+                'last_name': result.data.last_name
+            }            
+            message.sendMesssageGreeting(res, outputMessage);
+        }
+    });
+    return callback(res);
 }

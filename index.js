@@ -9,6 +9,17 @@ global.rootPath = __dirname;
 const utilsIndex = require(global.rootPath + '/utils/index');
 const utilsConstants = require(global.rootPath + '/utils/constants');
 
+
+// Connect to MongoDB
+var config = require(global.rootPath + '/config/environment/database_info');
+var mongoose = require('mongoose');
+mongoose.connect(config.mongo.uri, config.mongo.options);
+mongoose.connection.on('error', function(err) {
+    console.error(`MongoDB connection error: ${err}`);
+    process.exit(-1); // eslint-disable-line no-process-exit
+});
+
+
 app.use(bodyParser.json())
 app.use(express.static(path.join(global.rootPath, 'public')));
 
@@ -36,6 +47,19 @@ app.post('/webhook', function (req, res) {
     return res.status(400).send('Bad Request')
   }
 
+  if (!req.body.originalRequest) {
+    console.log('Test on ApiAi');
+    // return res.status(400).send('Test on ApiAi');
+  } else {
+    if (req.body.result.action == 'greeting') {
+      // get user info base on chat platform
+      let originalRequest = req.body.originalRequest;
+      utilsIndex.greeting(res, originalRequest, function(result) {
+        return result.res;
+      })
+    }
+  }
+
   // the value of Action from api.ai is stored in req.body.result.action
   console.log('* Received action -- %s', req.body.result.action)
 
@@ -46,8 +70,8 @@ app.post('/webhook', function (req, res) {
       location = req.body.result.parameters['location'];
       startDate = req.body.result.parameters['startDate'];
       endDate = req.body.result.parameters['endDate'];
-      
-      utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function(result) {
+
+      utilsIndex.getWeatherLocationFromTo(res, location, startDate, endDate, function (result) {
         return result.res;
       });
       break;
@@ -69,11 +93,11 @@ app.post('/webhook', function (req, res) {
       utilsIndex.getLocation(req, res);
       break;
     case 'weather.location.next':
-    location = req.body.result.parameters['location'];
-    let days = req.body.result.parameters['days'];
-    utilsIndex.getWeatherLocationNext(res, location, days, function(result) {
-      return result.res;
-    })
+      location = req.body.result.parameters['location'];
+      let days = req.body.result.parameters['days'];
+      utilsIndex.getWeatherLocationNext(res, location, days, function (result) {
+        return result.res;
+      })
       break;
     default:
       break;
