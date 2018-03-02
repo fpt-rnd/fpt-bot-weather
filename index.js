@@ -76,7 +76,8 @@ app.post('/webhook', function (req, res) {
     case 'weather.forecast.next.tomorrow':
       utilsIndex.getWeatherCityDay(req, res, reqAction);
       break;
-    case 'get.location.input.text':
+    case 'get.location.input.text.no.ev':
+    case 'get.location.input.text.ev':
     case 'facebook.location':
       utilsIndex.getLocation(req, res);
       break;
