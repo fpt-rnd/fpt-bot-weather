@@ -149,15 +149,15 @@ exports.getWeatherCityDay = function (req, res, reqAction) {
 
 exports.greeting = function (res, originalRequest, callback) {
     utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
-        
         if (!result.status) {
-          utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {});
-          utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
-            let outputMessage = {
-                'first_name': result.data.first_name,
-                'last_name': result.data.last_name
-            }            
-            message.sendMesssageGreeting(res, outputMessage);
+          utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
+            utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
+                let outputMessage = {
+                    'first_name': result.data.first_name,
+                    'last_name': result.data.last_name
+                }            
+                message.sendMesssageGreeting(res, outputMessage);
+              });
           });
         } else {
             let outputMessage = {

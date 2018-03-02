@@ -9,6 +9,17 @@ global.rootPath = __dirname;
 const utilsIndex = require(global.rootPath + '/utils/index');
 const utilsConstants = require(global.rootPath + '/utils/constants');
 
+
+// Connect to MongoDB
+var config = require(global.rootPath + '/config/environment/database_info');
+var mongoose = require('mongoose');
+mongoose.connect(config.mongo.uri, config.mongo.options);
+mongoose.connection.on('error', function(err) {
+    console.error(`MongoDB connection error: ${err}`);
+    process.exit(-1); // eslint-disable-line no-process-exit
+});
+
+
 app.use(bodyParser.json())
 app.use(express.static(path.join(global.rootPath, 'public')));
 
