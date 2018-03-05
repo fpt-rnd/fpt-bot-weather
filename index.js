@@ -90,6 +90,7 @@ app.post('/webhook', function (req, res) {
     case 'get.location.input.text.no.ev':
     case 'get.location.input.text.ev':
     case 'facebook.location':
+    case 'get.location':
       utilsIndex.getLocation(req, res);
       break;
     case 'weather.location.next':

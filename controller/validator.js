@@ -1,7 +1,7 @@
 var validator = require('validator');
 var moment = require('moment');
 
-const location = require(global.rootPath + '/controller/location');
+const location = require(global.rootPath + '/controller/api/location');
 
 const TYPE_DATE = 'date';
 const TYPE_LOCATION = 'location';

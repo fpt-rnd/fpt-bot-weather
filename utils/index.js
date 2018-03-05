@@ -3,7 +3,7 @@ const moment = require('moment');
 const message = require(global.rootPath + '/controller/message');
 const validator = require(global.rootPath + '/controller/validator');
 const weather = require(global.rootPath + '/controller/api/weather');
-const location = require(global.rootPath + '/controller/location');
+const location = require(global.rootPath + '/controller/api/location');
 const utilsUserInfo = require(global.rootPath + '/controller/utils/userInfo');
 
 var lat, long, address
@@ -101,11 +101,11 @@ exports.getWeatherLocationNext = function (res, location, days, callback) {
 }
 
 exports.getLocation = function (req, res, callback) {
-    if (req.body.result.action === 'get.location.input.text.no.ev' || req.body.result.action === 'get.location.input.text.ev') {
+    if (req.body.originalRequest.data.message) {
         let textLocation = req.body.originalRequest.data.message.text;
-        let queryTextLocation = textLocation.replace(/ /g, '+');
+        // let queryTextLocation = textLocation.replace(/ /g, '+');
 
-        location.getLocationWithTextAddress(queryTextLocation, function (result) {
+        location.getLocationWithTextAddress(textLocation, function (result) {
             if (result.status) {
                 lat = result.lat;
                 long = result.long;
@@ -116,7 +116,7 @@ exports.getLocation = function (req, res, callback) {
             }
         })
 
-    } else if (req.body.result.action === 'facebook.location') {
+    } else if (req.body.originalRequest.data.postback) {
         //facebook location events
         lat = req.body.originalRequest.data.postback.data.lat;
         long = req.body.originalRequest.data.postback.data.long;
