@@ -110,7 +110,7 @@ exports.getLocation = function (req, res, callback) {
                 lat = result.lat;
                 long = result.long;
                 address = result.address;
-                message.sendMessagesChooseDate(res, address);
+                message.sendMessagesConfirmLocation(res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
@@ -124,23 +124,28 @@ exports.getLocation = function (req, res, callback) {
         location.getLocationWithQuickReplyFB(lat, long, function (result) {
             if (result.status) {
                 address = result.address;
-                message.sendMessagesChooseDate(res, address);
+                message.sendMessagesConfirmLocation(res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
         })
-
-    } else {
-        res.status(200).json({
-            status: 'OK'
-        })
     }
+}
+
+exports.getWeatherForecast = function(req, res, reqAction, callback) {
+    weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
+        if (result.status) {
+            message.sendMessagesWeather(res, result, address)
+        } else {
+            message.sendMessagesNotFoundDataWeather(res)
+        }
+    })
 }
 
 exports.getWeatherCityDay = function (req, res, reqAction) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
-            message.sendMessagesDataWeather(res, result, address)
+            message.sendMessagesWeatherDetail(res, result, address)
         } else {
             message.sendMessagesNotFoundDataWeather(res)
         }

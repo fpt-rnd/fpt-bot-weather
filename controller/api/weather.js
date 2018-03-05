@@ -62,46 +62,52 @@ exports.getWetherForcastWithApi = function (lat, long, reqAction, callback) {
 
     request.get(apiWeather, (err, response, body) => {
         let data = JSON.parse(body);
+        let result = {
+            'status': false,
+            'data': null
+        }
         if (!err && response.statusCode === 200 && !data.response.error) {
-            var weatherDay, forecastDay
-            switch (reqAction) {
-                case 'weather.forecast.today':
-                    weatherDay = 0
-                    forecastDay = 0
-                    break
-                case 'weather.forecast.tomorrow':
-                    weatherDay = 2
-                    forecastDay = 1
-                    break
-                case 'weather.forecast.next.tomorrow':
-                    weatherDay = 4
-                    forecastDay = 2
-                    break
-                default:
-                    break
+            if (reqAction !== 'choose.date.weather.forecast') {
+                var weatherDay, forecastDay
+                switch (reqAction) {
+                    case 'weather.forecast.today':
+                        weatherDay = 0
+                        forecastDay = 0
+                        break
+                    case 'weather.forecast.tomorrow':
+                        weatherDay = 2
+                        forecastDay = 1
+                        break
+                    case 'weather.forecast.next.tomorrow':
+                        weatherDay = 4
+                        forecastDay = 2
+                        break
+                    default:
+                        break
+                }
+
+                let weather = data.forecast.simpleforecast.forecastday[forecastDay].conditions
+                let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}*C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}*C`
+                let forecastday = `${data.forecast.simpleforecast.forecastday[forecastDay].date.year}-${data.forecast.simpleforecast.forecastday[forecastDay].date.month}-${data.forecast.simpleforecast.forecastday[forecastDay].date.day}`
+                //let relative_humidity = data.current_observation.relative_humidity
+                let forecast = `\r\n- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext}\r\n`
+                    + `- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext_metric}\r\n`
+
+                result = {
+                    'status': true,
+                    'data': `Forecast day: ${forecastday}\r\n`
+                        + `Weather: ${weather}\r\n`
+                        + `Temperature: ${temperature}\r\n`
+                        + `Forecast: ${forecast}\r\n`
+                }
+
+            } else {
+                result = {
+                    'status': true,
+                    'data': data
+                }
             }
 
-            let weather = data.forecast.simpleforecast.forecastday[forecastDay].conditions
-            let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}C`
-            let forecastday = `${data.forecast.simpleforecast.forecastday[forecastDay].date.year}-${data.forecast.simpleforecast.forecastday[forecastDay].date.month}-${data.forecast.simpleforecast.forecastday[forecastDay].date.day}`
-            //let relative_humidity = data.current_observation.relative_humidity
-            let forecast = `\r\n- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext}\r\n`
-                + `- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext_metric}\r\n`
-
-            let result = {
-                'status': true,
-                'data': `Forecast day: ${forecastday}\r\n`
-                    + `Weather: ${weather}\r\n`
-                    + `Temperature: ${temperature}\r\n`
-                    + `Forecast: ${forecast}\r\n`
-            }
-
-            return callback(result)
-        } else {
-            let result = {
-                'status': false,
-                'data': null
-            }
             return callback(result)
         }
     })

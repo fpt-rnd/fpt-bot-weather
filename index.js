@@ -93,6 +93,9 @@ app.post('/webhook', function (req, res) {
     case 'get.location':
       utilsIndex.getLocation(req, res);
       break;
+    case'choose.date.weather.forecast':
+      utilsIndex.getWeatherForecast(req, res, reqAction);
+      break;
     case 'weather.location.next':
       location = req.body.result.parameters['location'];
       let days = req.body.result.parameters['days'];
