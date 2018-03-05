@@ -1,7 +1,11 @@
+// Using worldweatheronline & WEATHERUNLOCKED
+
 const moment = require('moment');
 const request = require('request');
-const utilsConstants = require(global.rootPath + '/utils/constants');
 const DATE_FORMAT_FOR_API_WWO = 'Y-MM-D';
+
+const WORLDWEATHERONLINE_API_KEY = '7a7b3e413b6d4b28ad675906181302';
+const WUNDERGROUND_API_KEY = 'e41ad5ce5cd14bff'
 
 exports.getWeatherLocationWithDate = function (location, date, callback) {
 
@@ -12,12 +16,12 @@ exports.getWeatherLocationWithDate = function (location, date, callback) {
 //   console.log('diffday: ' + diffDay);
 
   if (diffDay == 0) {
-    restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
   } else if (diffDay > 0) {
       temp = 'past-weather';
-    restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
   } else {
-    restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
+    restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&date=${date}&tp=1&format=json`;
   }
 
   request.get(restUrl, (err, response, body) => {
@@ -54,7 +58,7 @@ exports.getWeatherLocationWithDate = function (location, date, callback) {
 }
 
 exports.getWetherForcastWithApi = function (lat, long, reqAction, callback) {
-  let apiWeather = `http://api.wunderground.com/api/${utilsConstants.WUNDERGROUND_API_KEY}/conditions/forecast/q/${lat},${long}.json`
+  let apiWeather = `http://api.wunderground.com/api/${WUNDERGROUND_API_KEY}/conditions/forecast/q/${lat},${long}.json`
 
   request.get(apiWeather, (err, response, body) => {
     let data = JSON.parse(body);
@@ -121,12 +125,12 @@ exports.getWeatherLocationFromTo = function (location, startDate, endDate, callb
             return callback(result);
         } else {
             temp = 'local';
-            restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${startDate}&num_of_days=${diff}&tp=1&format=json`;
+            restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&date=${startDate}&num_of_days=${diff}&tp=1&format=json`;
         }
     } else {
         if (endDateTemp.diff(startDateTemp) >= 0) {
             temp = "past-weather";
-            restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&date=${startDateTemp.format(DATE_FORMAT_FOR_API_WWO)}&enddate=${endDateTemp.format(DATE_FORMAT_FOR_API_WWO)}&tp=1&format=json`;
+            restUrl = `https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&date=${startDateTemp.format(DATE_FORMAT_FOR_API_WWO)}&enddate=${endDateTemp.format(DATE_FORMAT_FOR_API_WWO)}&tp=1&format=json`;
         } else {
             result.reason = 'From Date must be after To Date';
             return callback(result);
@@ -181,7 +185,7 @@ exports.getWeatherLocationNext = function (location, days, callback) {
         return callback(result);
     } else {
         days++;
-        restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${utilsConstants.WEATHER_API_KEY}&q=${location}&num_of_days=${days}&tp=1&format=json`;
+        restUrl = `https://api.worldweatheronline.com/premium/v1/weather.ashx?key=${WORLDWEATHERONLINE_API_KEY}&q=${location}&num_of_days=${days}&tp=1&format=json`;
     }
 
     console.log(restUrl);

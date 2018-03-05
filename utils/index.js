@@ -2,7 +2,7 @@ const request = require('request')
 const moment = require('moment');
 const message = require(global.rootPath + '/controller/message');
 const validator = require(global.rootPath + '/controller/validator');
-const weather = require(global.rootPath + '/controller/weather');
+const weather = require(global.rootPath + '/controller/api/weather');
 const location = require(global.rootPath + '/controller/location');
 const utilsUserInfo = require(global.rootPath + '/controller/utils/userInfo');
 
