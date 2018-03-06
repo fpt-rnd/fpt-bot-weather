@@ -87,7 +87,7 @@ exports.getWetherForcastWithApi = function (lat, long, reqAction, callback) {
                 }
 
                 let weather = data.forecast.simpleforecast.forecastday[forecastDay].conditions
-                let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}*C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}*C`
+                let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}°C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}°C`
                 let forecastday = `${data.forecast.simpleforecast.forecastday[forecastDay].date.year}-${data.forecast.simpleforecast.forecastday[forecastDay].date.month}-${data.forecast.simpleforecast.forecastday[forecastDay].date.day}`
                 //let relative_humidity = data.current_observation.relative_humidity
                 let forecast = `\r\n- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext}\r\n`

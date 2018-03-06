@@ -48,14 +48,23 @@ var getLocation = function (url, callback) {
             'status': false,
             'lat': null,
             'long': null,
-            'address': null
+            'address': {
+                'city': null,
+                'formatted_address': null
+            }
         }
         // console.log("Result: " + JSON.stringify(result));
         if (!err && response.statusCode === 200 && data.status === 'OK') {
             result.status = true;
             result.lat = data.results[0].geometry.location.lat;
             result.long = data.results[0].geometry.location.lng;
-            result.address = data.results[0].formatted_address;
+            address_components = data.results[0].address_components
+            address_components.forEach(address_component => {
+                if (address_component.types[0] === 'administrative_area_level_1') {
+                    result.address.city = address_component.long_name;
+                }
+            });
+            result.address.formatted_address = data.results[0].formatted_address;
         }
 
         return callback(result);

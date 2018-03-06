@@ -1,5 +1,6 @@
 const request = require('request')
 const moment = require('moment');
+const qs = require('querystring');
 const message = require(global.rootPath + '/controller/message');
 const validator = require(global.rootPath + '/controller/validator');
 const weather = require(global.rootPath + '/controller/api/weather');
@@ -34,14 +35,14 @@ exports.getWeatherLocationWithDate = function (res, location, date, callback) {
 }
 
 exports.getWeatherLocationFromTo = function (res, location, startDate, endDate, callback) {
-    validator.validate('location', location, function (isValid) {        
+    validator.validate('location', location, function (isValid) {
         if (isValid.status) {
             validator.validate('date', startDate, function (isValidStartDate) {
                 if (isValidStartDate.status) {
                     validator.validate('date', endDate, function (isValidEndDate) {
                         if (isValidEndDate.status) {
                             weather.getWeatherLocationFromTo(isValid.location, startDate, endDate, function (weatherInDateRange) {
-                                if (weatherInDateRange.status) {                                    
+                                if (weatherInDateRange.status) {
                                     let outputWeather = '';
                                     if (Array.isArray(weatherInDateRange.FeelsLikeC)) {
                                         weatherInDateRange.FeelsLikeC.forEach(element => {
@@ -105,7 +106,7 @@ exports.getLocation = function (req, res, callback) {
         let textLocation = req.body.originalRequest.data.message.text;
         // let queryTextLocation = textLocation.replace(/ /g, '+');
 
-        location.getLocationWithTextAddress(textLocation, function (result) {
+        location.getLocationWithTextAddress(qs.escape(textLocation), function (result) {
             if (result.status) {
                 lat = result.lat;
                 long = result.long;
@@ -130,9 +131,10 @@ exports.getLocation = function (req, res, callback) {
             }
         })
     }
+    return callback(res);
 }
 
-exports.getWeatherForecast = function(req, res, reqAction, callback) {
+exports.getWeatherForecast = function (req, res, reqAction, callback) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
             message.sendMessagesWeather(res, result, address)
@@ -140,9 +142,11 @@ exports.getWeatherForecast = function(req, res, reqAction, callback) {
             message.sendMessagesNotFoundDataWeather(res)
         }
     })
+
+    return callback(res);
 }
 
-exports.getWeatherCityDay = function (req, res, reqAction) {
+exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
             message.sendMessagesWeatherDetail(res, result, address)
@@ -150,25 +154,27 @@ exports.getWeatherCityDay = function (req, res, reqAction) {
             message.sendMessagesNotFoundDataWeather(res)
         }
     })
+
+    return callback(res);
 }
 
 exports.greeting = function (res, originalRequest, callback) {
     utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
         if (!result.status) {
-          utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
-            utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
-                let outputMessage = {
-                    'first_name': result.data.first_name,
-                    'last_name': result.data.last_name
-                }            
-                message.sendMesssageGreeting(res, outputMessage);
-              });
-          });
+            utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
+                utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
+                    let outputMessage = {
+                        'first_name': result.data.first_name,
+                        'last_name': result.data.last_name
+                    }
+                    message.sendMesssageGreeting(res, outputMessage);
+                });
+            });
         } else {
             let outputMessage = {
                 'first_name': result.data.first_name,
                 'last_name': result.data.last_name
-            }            
+            }
             message.sendMesssageGreeting(res, outputMessage);
         }
     });

@@ -10,49 +10,11 @@ exports.sendMessages = function (responses, statusCode, platForm, type, context,
     return callback(responses);
 }
 
-exports.sendMessagesChooseDate = function (responses, address, callback) {
-    let text = `Please choose date on which you want to get weather forecast in: ${address}`;
-    let quickReplies = [
-        {
-            content_type: "text",
-            payload: "get weather forecast today",
-            title: "Today"
-        },
-        {
-            content_type: "text",
-            payload: "get weather forecast tomorrow",
-            title: "Tomorrow"
-        },
-        {
-            content_type: "text",
-            payload: "get weather forecast next tomorrow",
-            title: "Next Tomorrow"
-        },
-        {
-            content_type: "text",
-            payload: "Others",
-            title: "Others"
-        }
-    ];
-
-    let contextOut = [
-        {
-            name: "weather-ev",
-            lifespan: 1,
-            parameters: {}
-        }
-    ];
-
-    templatefb.templateQuickReplyFB(responses, text, quickReplies, contextOut);
-}
-
 var checkLocation = 0
 exports.sendMessagesNotFoundLocation = function (responses) {
     checkLocation += 1
     if (checkLocation > 3) {
         checkLocation = 0
-        let speech = ''
-
         let facebook = [
             {
                 attachment: {
@@ -78,27 +40,14 @@ exports.sendMessagesNotFoundLocation = function (responses) {
         ]
 
         let contextOut = [
-            {
-                name: "ask-weather",
-                lifespan: 1,
-                parameters: {}
-            }
+            
         ];
 
-        templatefb.templateTypeButtonFB(responses, speech, facebook, contextOut);
+        templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
     } else {
         let speech = 'Location is not found. Enter location again?'
         let contextOut = [
-            {
-                name: "weather-ev",
-                lifespan: 0,
-                parameters: {}
-            },
-            {
-                name: "weather-bt",
-                lifespan: 10,
-                parameters: {}
-            }
+            
         ]
 
         templatefb.templateMessages(responses, speech, contextOut)
@@ -106,58 +55,34 @@ exports.sendMessagesNotFoundLocation = function (responses) {
 }
 
 exports.sendMessagesConfirmLocation = function (responses, address, callback) {
-    let contextOut = [
-        {
-            name: "0Greeting-followup",
-            lifespan: 1,
-            parameters: {}
-        },
-        {
-            name: "weather-forecast",
-            lifespan: 1,
-            parameters: {}
-        }
-    ]
-
     let facebook = [
         {
-            text: `Your location: ${address}\r\n`
-        },
-        {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "button",
-                    text: 'Do you want to change location?',
-                    buttons: [
-                        {
-                            type: "postback",
-                            payload: "Yes",
-                            title: "Yes"
-                        },
-                        {
-                            type: "postback",
-                            payload: "choose date weather forecast",
-                            title: "No"
-                        }
-                    ]
+            text: `Your location: ${address.formatted_address}`,
+            quick_replies: [
+                {
+                    content_type: "text",
+                    payload: "choose date weather forecast",
+                    title: "Yes"
+                },
+                {
+                    content_type: "text",
+                    payload: "Yes",
+                    title: "Others"
                 }
-            }
+            ]
         }
     ]
-
-    templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+    templatefb.templateQuickReplyFB(responses, '', facebook);
 }
 
 exports.sendMessagesWeatherDetail = function (responses, result, address) {
-    let contextOut = [
-        {
-            name: "0Greeting-followup",
-            lifespan: 1,
-            parameters: {}
-        }
-    ]
-
+    // let contextOut = [
+    //     {
+    //         name: "0Greeting-followup",
+    //         lifespan: 1,
+    //         parameters: {}
+    //     }
+    // ]
     let facebook = [
         {
             text: `Your location: ${address}\r\n`
@@ -186,21 +111,13 @@ exports.sendMessagesWeatherDetail = function (responses, result, address) {
         }
     ]
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+    templatefb.templateTypeButtonFB(responses, '', facebook, []);
 }
 
 exports.sendMessagesWeather = function (responses, result, address) {
-    let contextOut = [
-        {
-            name: "weather-ev",
-            lifespan: 1,
-            parameters: {}
-        }
-    ]
-
     let facebook = [
         {
-            text: `Weather forecast.`
+            text: `Location: ${address.formatted_address}`
         },
         {
             attachment: {
@@ -209,10 +126,10 @@ exports.sendMessagesWeather = function (responses, result, address) {
                     template_type: "generic",
                     elements: [
                         {
-                            title: `${result.data.forecast.simpleforecast.forecastday[0].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[0].date.year}-${result.data.forecast.simpleforecast.forecastday[0].date.month}-${result.data.forecast.simpleforecast.forecastday[0].date.day}`,
+                            title: `${result.data.forecast.simpleforecast.forecastday[0].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[0].date.day}/${result.data.forecast.simpleforecast.forecastday[0].date.month}/${result.data.forecast.simpleforecast.forecastday[0].date.year}`,
                             image_url: `${result.data.forecast.simpleforecast.forecastday[0].icon_url}`,
-                            subtitle: `Weather: ${result.data.forecast.simpleforecast.forecastday[0].conditions} \r\n`
-                                + `Temperature: ${result.data.forecast.simpleforecast.forecastday[0].low.celsius}*C - ${result.data.forecast.simpleforecast.forecastday[0].high.celsius}*C`,
+                            subtitle: `Temp: ${result.data.forecast.simpleforecast.forecastday[0].low.celsius}°C - ${result.data.forecast.simpleforecast.forecastday[0].high.celsius}°C \r\n`
+                                + `Conditions: ${result.data.forecast.simpleforecast.forecastday[0].conditions}`,
                             buttons: [
                                 {
                                     type: "postback",
@@ -222,10 +139,10 @@ exports.sendMessagesWeather = function (responses, result, address) {
                             ]
                         },
                         {
-                            title: `${result.data.forecast.simpleforecast.forecastday[1].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[1].date.year}-${result.data.forecast.simpleforecast.forecastday[1].date.month}-${result.data.forecast.simpleforecast.forecastday[1].date.day}`,
+                            title: `${result.data.forecast.simpleforecast.forecastday[1].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[1].date.day}/${result.data.forecast.simpleforecast.forecastday[1].date.month}/${result.data.forecast.simpleforecast.forecastday[1].date.year}`,
                             image_url: `${result.data.forecast.simpleforecast.forecastday[1].icon_url}`,
-                            subtitle: `Weather: ${result.data.forecast.simpleforecast.forecastday[1].conditions} \r\n`
-                                + `Temperature: ${result.data.forecast.simpleforecast.forecastday[1].low.celsius}*C - ${result.data.forecast.simpleforecast.forecastday[1].high.celsius}*C`,
+                            subtitle: `Temperature: ${result.data.forecast.simpleforecast.forecastday[1].low.celsius}°C - ${result.data.forecast.simpleforecast.forecastday[1].high.celsius}°C \r\n`
+                                + `Conditions: ${result.data.forecast.simpleforecast.forecastday[1].conditions}`,
                             buttons: [
                                 {
                                     type: "postback",
@@ -235,10 +152,10 @@ exports.sendMessagesWeather = function (responses, result, address) {
                             ]
                         },
                         {
-                            title: `${result.data.forecast.simpleforecast.forecastday[2].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[2].date.year}-${result.data.forecast.simpleforecast.forecastday[2].date.month}-${result.data.forecast.simpleforecast.forecastday[2].date.day}`,
+                            title: `${result.data.forecast.simpleforecast.forecastday[2].date.weekday}: ${result.data.forecast.simpleforecast.forecastday[2].date.day}/${result.data.forecast.simpleforecast.forecastday[2].date.month}/${result.data.forecast.simpleforecast.forecastday[2].date.year}`,
                             image_url: `${result.data.forecast.simpleforecast.forecastday[2].icon_url}`,
-                            subtitle: `Weather: ${result.data.forecast.simpleforecast.forecastday[2].conditions} \r\n`
-                                + `Temperature: ${result.data.forecast.simpleforecast.forecastday[2].low.celsius}*C - ${result.data.forecast.simpleforecast.forecastday[2].high.celsius}*C`,
+                            subtitle: `Temperature: ${result.data.forecast.simpleforecast.forecastday[2].low.celsius}°C - ${result.data.forecast.simpleforecast.forecastday[2].high.celsius}°C\r\n`
+                                + `Conditions: ${result.data.forecast.simpleforecast.forecastday[2].conditions}`,
                             buttons: [
                                 {
                                     type: "postback",
@@ -253,17 +170,15 @@ exports.sendMessagesWeather = function (responses, result, address) {
         }
     ]
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+    templatefb.templateTypeButtonFB(responses, '', facebook, []);
 }
 
 exports.sendMessagesNotFoundDataWeather = function (responses) {
     let speech = 'No data weather forecast.'
-    let contextOut = []
-    templatefb.templateMessages(responses, speech, contextOut)
+    templatefb.templateMessages(responses, speech, [])
 }
 
 exports.sendMesssageGreeting = function (responses, data) {
-    let contextOut = [];
     let facebook = [
         {
             attachment: {
@@ -288,5 +203,5 @@ exports.sendMesssageGreeting = function (responses, data) {
         }
     ];
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+    templatefb.templateTypeButtonFB(responses, '', facebook, []);
 }
