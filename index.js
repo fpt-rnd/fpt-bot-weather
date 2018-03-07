@@ -62,7 +62,7 @@ app.post('/webhook', function (req, res) {
 
   // the value of Action from api.ai is stored in req.body.result.action
   console.log('* Received action -- %s', req.body.result.action)
-
+  console.log(req.body.result.fulfillment.messages);
   let reqAction = req.body.result.action;
   let location, date, startDate, endDate;
   switch (reqAction) {

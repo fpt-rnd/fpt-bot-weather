@@ -1,4 +1,5 @@
 const templatefb = require('./responsetemplatefb')
+const fbTemplate = require('./template_builder/botBuilder')
 
 exports.sendMessages = function (responses, statusCode, platForm, type, context, callback) {
     responses.status(statusCode).json({
@@ -40,21 +41,21 @@ exports.sendMessagesNotFoundLocation = function (responses) {
         ]
 
         let contextOut = [
-            
+
         ];
 
-        templatefb.templateTypeButtonFB(responses, '', facebook, contextOut);
+        templatefb.templateMessagesDataFb(responses, '', facebook, contextOut);
     } else {
         let speech = 'Location is not found. Enter location again?'
         let contextOut = [
-            
+
         ]
 
         templatefb.templateMessages(responses, speech, contextOut)
     }
 }
 
-exports.sendMessagesConfirmLocation = function (responses, address, callback) {
+exports.sendMessagesConfirmLocation = function (req, responses, address, callback) {
     let facebook = [
         {
             text: `Your location: ${address.formatted_address}`,
@@ -62,20 +63,44 @@ exports.sendMessagesConfirmLocation = function (responses, address, callback) {
                 {
                     content_type: "text",
                     payload: "choose date weather forecast",
-                    title: "Yes"
+                    title: "Yes",
+                    image_url: "https://png.icons8.com/nolan/96/000000/partly-cloudy-day.png"
                 },
                 {
                     content_type: "text",
                     payload: "Yes",
-                    title: "Others"
+                    title: "Others",
+                    image_url: "https://png.icons8.com/nolan/96/000000/circled-right.png"
                 }
             ]
         }
     ]
-    templatefb.templateQuickReplyFB(responses, '', facebook);
+
+    let data = req.body.result.fulfillment.messages
+    const quickReply = new fbTemplate.Text(`Your location: ${address.formatted_address}`);
+    for (i = 0; i < data.length; i++) {
+        if (data[i].platform === 'facebook') {
+            if (data[i].payload.type === 'quick_reply') {
+                for (j = 0; j < data[i].payload.data.item.length; j++) {
+                    quickReply
+                        .addQuickReply(data[i].payload.data.item[j].title, data[i].payload.data.item[j].payload, data[i].payload.data.item[j].image_url)
+                }
+            }
+        }
+    }
+    var abc = JSON.parse(JSON.stringify(new fbTemplate
+        .BaseTemplate()
+        .getApi([quickReply.get()])))
+    console.log(JSON.stringify(abc))
+
+    responses.status(200).json(abc);
+
+
+
+    //templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }
 
-exports.sendMessagesWeatherDetail = function (responses, result, address) {
+exports.sendMessagesWeatherDetail = function (responses, data, address) {
     // let contextOut = [
     //     {
     //         name: "0Greeting-followup",
@@ -85,8 +110,39 @@ exports.sendMessagesWeatherDetail = function (responses, result, address) {
     // ]
     let facebook = [
         {
-            text: `Your location: ${address}\r\n`
-                + result.data
+            text: `Location: ${address.formatted_address} \r\n`
+                + `${data.forecastday}`
+        },
+        {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "list",
+                    top_element_style: "compact",
+                    elements: [
+                        {
+                            title: "Conditions",
+                            subtitle: `${data.conditions}`,
+                            image_url: `${data.image}`
+                        },
+                        {
+                            title: "Humidity, Temp",
+                            subtitle: `${data.humidity} / ${data.temperature}`,
+                            image_url: "https://png.icons8.com/color/96/000000/humidity.png"
+                        },
+                        {
+                            title: "Wind Speed",
+                            subtitle: `${data.windspeed}`,
+                            image_url: "https://png.icons8.com/color/96/000000/windy-weather.png"
+                        },
+                        {
+                            title: "Snow",
+                            subtitle: `${data.snow}`,
+                            image_url: "https://png.icons8.com/color/96/000000/winter.png"
+                        }
+                    ]
+                }
+            }
         },
         {
             attachment: {
@@ -111,7 +167,7 @@ exports.sendMessagesWeatherDetail = function (responses, result, address) {
         }
     ]
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, []);
+    templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }
 
 exports.sendMessagesWeather = function (responses, result, address) {
@@ -170,7 +226,7 @@ exports.sendMessagesWeather = function (responses, result, address) {
         }
     ]
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, []);
+    templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }
 
 exports.sendMessagesNotFoundDataWeather = function (responses) {
@@ -203,5 +259,5 @@ exports.sendMesssageGreeting = function (responses, data) {
         }
     ];
 
-    templatefb.templateTypeButtonFB(responses, '', facebook, []);
+    templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }

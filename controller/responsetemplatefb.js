@@ -1,16 +1,4 @@
-exports.templateQuickReplyFB = function (responses, speech, facebook, contextOut) {
-    responses.status(200).json({
-        source: 'webhook',
-        speech: '',
-        contextOut: contextOut,
-        data: {
-            facebook: facebook
-        },
-        displayText: 'OK'
-    })
-}
-
-exports.templateTypeButtonFB = function (responses, speech, facebook, contextOut) {
+exports.templateMessagesDataFb = function (responses, speech, facebook, contextOut) {
     responses.status(200).json({
         source: 'webhook',
         speech: speech,

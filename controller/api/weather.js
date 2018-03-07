@@ -86,19 +86,27 @@ exports.getWetherForcastWithApi = function (lat, long, reqAction, callback) {
                         break
                 }
 
-                let weather = data.forecast.simpleforecast.forecastday[forecastDay].conditions
+                let conditions = data.forecast.simpleforecast.forecastday[forecastDay].conditions
                 let temperature = `${data.forecast.simpleforecast.forecastday[forecastDay].low.celsius}°C - ${data.forecast.simpleforecast.forecastday[forecastDay].high.celsius}°C`
-                let forecastday = `${data.forecast.simpleforecast.forecastday[forecastDay].date.year}-${data.forecast.simpleforecast.forecastday[forecastDay].date.month}-${data.forecast.simpleforecast.forecastday[forecastDay].date.day}`
-                //let relative_humidity = data.current_observation.relative_humidity
+                let forecastday = `${data.forecast.simpleforecast.forecastday[forecastDay].date.weekday}: ${data.forecast.simpleforecast.forecastday[forecastDay].date.day}/${data.forecast.simpleforecast.forecastday[forecastDay].date.month}/${data.forecast.simpleforecast.forecastday[forecastDay].date.year}`
+                let humidity = `${data.forecast.simpleforecast.forecastday[forecastDay].avehumidity}%`
+                let windspeed = `${data.forecast.simpleforecast.forecastday[forecastDay].avewind.kph} kph SE`
+                let snow = `${data.forecast.simpleforecast.forecastday[forecastDay].snow_allday.in}in (${data.forecast.simpleforecast.forecastday[forecastDay].snow_allday.cm}cm) `
                 let forecast = `\r\n- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext}\r\n`
                     + `- ${data.forecast.txt_forecast.forecastday[weatherDay].fcttext_metric}\r\n`
-
+                let image = `${data.forecast.simpleforecast.forecastday[forecastDay].icon_url}`
                 result = {
                     'status': true,
-                    'data': `Forecast day: ${forecastday}\r\n`
-                        + `Weather: ${weather}\r\n`
-                        + `Temperature: ${temperature}\r\n`
-                        + `Forecast: ${forecast}\r\n`
+                    'data': {
+                        'forecastday': forecastday,
+                        'conditions': conditions,
+                        'temperature': temperature,
+                        'humidity': humidity,
+                        'forecast': forecast,
+                        'windspeed': windspeed,
+                        'snow': snow,
+                        'image': image
+                    }
                 }
 
             } else {
