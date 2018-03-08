@@ -1,9 +1,10 @@
 const request = require('request')
 const moment = require('moment');
+const qs = require('querystring');
 const message = require(global.rootPath + '/controller/message');
 const validator = require(global.rootPath + '/controller/validator');
 const weather = require(global.rootPath + '/controller/api/weather');
-const location = require(global.rootPath + '/controller/location');
+const location = require(global.rootPath + '/controller/api/location');
 const utilsUserInfo = require(global.rootPath + '/controller/utils/userInfo');
 
 var lat, long, address
@@ -34,14 +35,14 @@ exports.getWeatherLocationWithDate = function (res, location, date, callback) {
 }
 
 exports.getWeatherLocationFromTo = function (res, location, startDate, endDate, callback) {
-    validator.validate('location', location, function (isValid) {        
+    validator.validate('location', location, function (isValid) {
         if (isValid.status) {
             validator.validate('date', startDate, function (isValidStartDate) {
                 if (isValidStartDate.status) {
                     validator.validate('date', endDate, function (isValidEndDate) {
                         if (isValidEndDate.status) {
                             weather.getWeatherLocationFromTo(isValid.location, startDate, endDate, function (weatherInDateRange) {
-                                if (weatherInDateRange.status) {                                    
+                                if (weatherInDateRange.status) {
                                     let outputWeather = '';
                                     if (Array.isArray(weatherInDateRange.FeelsLikeC)) {
                                         weatherInDateRange.FeelsLikeC.forEach(element => {
@@ -101,22 +102,22 @@ exports.getWeatherLocationNext = function (res, location, days, callback) {
 }
 
 exports.getLocation = function (req, res, callback) {
-    if (req.body.result.action === 'get.location.input.text.no.ev' || req.body.result.action === 'get.location.input.text.ev') {
+    if (req.body.originalRequest.data.message) {
         let textLocation = req.body.originalRequest.data.message.text;
-        let queryTextLocation = textLocation.replace(/ /g, '+');
+        // let queryTextLocation = textLocation.replace(/ /g, '+');
 
-        location.getLocationWithTextAddress(queryTextLocation, function (result) {
+        location.getLocationWithTextAddress(qs.escape(textLocation), function (result) {
             if (result.status) {
                 lat = result.lat;
                 long = result.long;
                 address = result.address;
-                message.sendMessagesChooseDate(res, address);
+                message.sendMessagesConfirmLocation(res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
         })
 
-    } else if (req.body.result.action === 'facebook.location') {
+    } else if (req.body.originalRequest.data.postback) {
         //facebook location events
         lat = req.body.originalRequest.data.postback.data.lat;
         long = req.body.originalRequest.data.postback.data.long;
@@ -124,46 +125,56 @@ exports.getLocation = function (req, res, callback) {
         location.getLocationWithQuickReplyFB(lat, long, function (result) {
             if (result.status) {
                 address = result.address;
-                message.sendMessagesChooseDate(res, address);
+                message.sendMessagesConfirmLocation(res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
         })
-
-    } else {
-        res.status(200).json({
-            status: 'OK'
-        })
     }
+    return callback(res);
 }
 
-exports.getWeatherCityDay = function (req, res, reqAction) {
+exports.getWeatherForecast = function (req, res, reqAction, callback) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
-            message.sendMessagesDataWeather(res, result, address)
+            message.sendMessagesWeather(res, result, address)
         } else {
             message.sendMessagesNotFoundDataWeather(res)
         }
     })
+
+    return callback(res);
+}
+
+exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
+    weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
+        if (result.status) {
+            message.sendMessagesWeatherDetail(res, result, address)
+        } else {
+            message.sendMessagesNotFoundDataWeather(res)
+        }
+    })
+
+    return callback(res);
 }
 
 exports.greeting = function (res, originalRequest, callback) {
     utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
         if (!result.status) {
-          utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
-            utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
-                let outputMessage = {
-                    'first_name': result.data.first_name,
-                    'last_name': result.data.last_name
-                }            
-                message.sendMesssageGreeting(res, outputMessage);
-              });
-          });
+            utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
+                utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
+                    let outputMessage = {
+                        'first_name': result.data.first_name,
+                        'last_name': result.data.last_name
+                    }
+                    message.sendMesssageGreeting(res, outputMessage);
+                });
+            });
         } else {
             let outputMessage = {
                 'first_name': result.data.first_name,
                 'last_name': result.data.last_name
-            }            
+            }
             message.sendMesssageGreeting(res, outputMessage);
         }
     });
