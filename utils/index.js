@@ -111,7 +111,7 @@ exports.getLocation = function (req, res, callback) {
                 lat = result.lat;
                 long = result.long;
                 address = result.address;
-                message.sendMessagesConfirmLocation(res, address);
+                message.sendMessagesConfirmLocation(req, res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
@@ -149,7 +149,8 @@ exports.getWeatherForecast = function (req, res, reqAction, callback) {
 exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
-            message.sendMessagesWeatherDetail(res, result, address)
+            data = result.data;
+            message.sendMessagesWeatherDetail(req, res, data, address)
         } else {
             message.sendMessagesNotFoundDataWeather(res)
         }
@@ -158,7 +159,7 @@ exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
     return callback(res);
 }
 
-exports.greeting = function (res, originalRequest, callback) {
+exports.greeting = function (req, res, originalRequest, callback) {
     utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
         if (!result.status) {
             utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
@@ -167,7 +168,7 @@ exports.greeting = function (res, originalRequest, callback) {
                         'first_name': result.data.first_name,
                         'last_name': result.data.last_name
                     }
-                    message.sendMesssageGreeting(res, outputMessage);
+                    message.sendMesssageGreeting(req, res, outputMessage);
                 });
             });
         } else {
@@ -175,7 +176,7 @@ exports.greeting = function (res, originalRequest, callback) {
                 'first_name': result.data.first_name,
                 'last_name': result.data.last_name
             }
-            message.sendMesssageGreeting(res, outputMessage);
+            message.sendMesssageGreeting(req, res, outputMessage);
         }
     });
     return callback(res);

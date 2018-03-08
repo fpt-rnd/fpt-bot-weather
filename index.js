@@ -54,7 +54,7 @@ app.post('/webhook', function (req, res) {
     if (req.body.result.action == 'greeting') {
       // get user info base on chat platform
       let originalRequest = req.body.originalRequest;
-      utilsIndex.greeting(res, originalRequest, function (result) {
+      utilsIndex.greeting(req, res, originalRequest, function (result) {
         return result.res;
       })
     }
