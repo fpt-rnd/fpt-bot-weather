@@ -1,7 +1,7 @@
 var validator = require('validator');
 var moment = require('moment');
 
-const location = require(global.rootPath + '/controller/location');
+const location = require(global.rootPath + '/controller/api/location');
 
 const TYPE_DATE = 'date';
 const TYPE_LOCATION = 'location';
@@ -34,12 +34,12 @@ var isValidLocation = function(data, callback) {
 		"status" : false
 	};
 
-	location.getLocationWithAddress(data, function(locationResult) {
+	location.getLocationWithTextAddress(data, function(locationResult) {
 		if (!locationResult.status) {
 			return callback(result);
 		} else {
 			result.status = true;
-			result.location = locationResult.location;
+			result.location = locationResult.address.city;
 			return callback(result);
 		}
 	});

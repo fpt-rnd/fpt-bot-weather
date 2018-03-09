@@ -14,9 +14,9 @@ const utilsConstants = require(global.rootPath + '/utils/constants');
 var config = require(global.rootPath + '/config/environment/database_info');
 var mongoose = require('mongoose');
 mongoose.connect(config.mongo.uri, config.mongo.options);
-mongoose.connection.on('error', function(err) {
-    console.error(`MongoDB connection error: ${err}`);
-    process.exit(-1); // eslint-disable-line no-process-exit
+mongoose.connection.on('error', function (err) {
+  console.error(`MongoDB connection error: ${err}`);
+  process.exit(-1); // eslint-disable-line no-process-exit
 });
 
 
@@ -54,7 +54,7 @@ app.post('/webhook', function (req, res) {
     if (req.body.result.action == 'greeting') {
       // get user info base on chat platform
       let originalRequest = req.body.originalRequest;
-      utilsIndex.greeting(res, originalRequest, function(result) {
+      utilsIndex.greeting(res, originalRequest, function (result) {
         return result.res;
       })
     }
@@ -62,7 +62,7 @@ app.post('/webhook', function (req, res) {
 
   // the value of Action from api.ai is stored in req.body.result.action
   console.log('* Received action -- %s', req.body.result.action)
-
+  console.log(req.body.result.fulfillment.messages);
   let reqAction = req.body.result.action;
   let location, date, startDate, endDate;
   switch (reqAction) {
@@ -82,15 +82,22 @@ app.post('/webhook', function (req, res) {
         return result.res;
       });
       break;
+    case 'get.location':
+      utilsIndex.getLocation(req, res, function (result) {
+        return result.res;
+      });
+      break;
+    case 'choose.date.weather.forecast':
+      utilsIndex.getWeatherForecast(req, res, reqAction, function (result) {
+        return result.res;
+      });
+      break;
     case 'weather.forecast.today':
     case 'weather.forecast.tomorrow':
     case 'weather.forecast.next.tomorrow':
-      utilsIndex.getWeatherCityDay(req, res, reqAction);
-      break;
-    case 'get.location.input.text.no.ev':
-    case 'get.location.input.text.ev':
-    case 'facebook.location':
-      utilsIndex.getLocation(req, res);
+      utilsIndex.getWeatherForecastDetail(req, res, reqAction, function (result) {
+        return result.res;
+      });
       break;
     case 'weather.location.next':
       location = req.body.result.parameters['location'];
@@ -98,6 +105,11 @@ app.post('/webhook', function (req, res) {
       utilsIndex.getWeatherLocationNext(res, location, days, function (result) {
         return result.res;
       })
+      break;
+    case 'weather.give.advance':
+      location = req.body.result.parameters['location'];
+      date = req.body.result.parameters['date'];
+      utilsIndex.giveAdvanceWeatherLocationWithDate(res, location, date);
       break;
     default:
       break;

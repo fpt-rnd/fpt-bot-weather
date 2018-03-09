@@ -6,7 +6,10 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "build-url": "^1.0.10",
+    "claudia-bot-builder": "^3.0.0",
     "express": "^4.16.2",
+    "fb-message-builder": "^2.2.0",
+    "log4js": "^2.5.3",
     "moment": "^2.20.1",
     "mongoose": "^5.0.4",
     "nodemon": "^1.14.12",
