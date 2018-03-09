@@ -180,3 +180,58 @@ exports.greeting = function (res, originalRequest, callback) {
     });
     return callback(res);
 }
+
+exports.giveAdvanceWeatherLocationWithDate = function (res, city, date) {
+    location.getLocationWithTextAddress(city, function (resultLocation) {
+        if (resultLocation.status) {
+            let reqAction = '';
+            switch (date) {
+                case 'today':
+                    reqAction = 'weather.forecast.today';
+                    break
+                case 'tomorrow':
+                    reqAction = 'weather.forecast.tomorrow';
+                    break
+                case 'next tomorrow':
+                    reqAction = 'weather.forecast.next.tomorrow';
+                    break;
+                default:
+                    message.sendMessages('Can\'t find the location');
+                    break;
+            }
+            weather.getWetherForcastWithApi(resultLocation.lat, resultLocation.long, reqAction, function (result) {
+                if (result.status) {
+                    giveAdvanceBaseOnWeather(res, result.data, address);
+                } else {
+                    message.sendMessagesNotFoundDataWeather(res)
+                };
+            })
+        } else {
+            message.sendMessages('Can\'t find the location');
+        }
+    });
+}
+
+var giveAdvanceBaseOnWeather = function (res, weather, address) {
+    console.log(weather);
+    let advanceMessage = '';
+    switch (weather.conditions) {
+        case 'Rain':
+        case 'Chance of Rain':
+            advanceMessage = 'You should bring your the umbrella';
+            break;
+        case 'Mostly Cloudy':
+        case 'Partly Cloudy':
+            advanceMessage = 'It\'s great to participate in outdoor activities';
+            break;
+        case 'Scattered Clouds':
+        case 'Clear':
+            advanceMessage = 'Should bring something to cover your head';
+            break;
+        default:
+            advanceMessage = 'Enjoy your day';
+            break;
+    }
+
+    message.sendMessages(res, 200, '', '', advanceMessage, function (result) { });
+}

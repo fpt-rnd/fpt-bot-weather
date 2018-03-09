@@ -106,6 +106,11 @@ app.post('/webhook', function (req, res) {
         return result.res;
       })
       break;
+    case 'weather.give.advance':
+      location = req.body.result.parameters['location'];
+      date = req.body.result.parameters['date'];
+      utilsIndex.giveAdvanceWeatherLocationWithDate(res, location, date);
+      break;
     default:
       break;
   }

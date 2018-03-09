@@ -3,30 +3,6 @@ const request = require('request');
 const GOOGLE_API_KEY = 'AIzaSyDIJrE4kZI7w7jBGxQbmGneMQ3ZCSmgZ5o';
 const GOOGLE_API = 'https://maps.google.com/maps/api/geocode/json';
 
-exports.getLocationWithAddress = function (address, callback) {
-    var result = {
-        "status": false,
-        "location": "",
-        "reason": ""
-    }
-
-    let cityUrl = GOOGLE_API + address + '&key=' + GOOGLE_API_KEY;
-
-    request.get(cityUrl, (err, response, body) => {
-        if (!err && response.statusCode == 200) {
-            let json = JSON.parse(body);
-            let city = json.results[0].address_components[0].short_name;
-
-            result.status = true;
-            result.location = city;
-            return callback(result);
-        } else {
-            result.reason = 'Can\'t find the city';
-            return callback(result);
-        }
-    });
-}
-
 exports.getLocationWithTextAddress = function (queryTextLocation, callback) {
     let url = `${GOOGLE_API}?address=${queryTextLocation}&sensor=false&key=${GOOGLE_API_KEY}`;
     getLocation(url, function (result) {
