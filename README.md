@@ -15,6 +15,8 @@ $ node index.js
 
 Your app should now be running on [localhost:5000](http://localhost:5000/).
 
+Your app works well if you see this: `Use the /webhook endpoint.`
+
 ## Deploying to Heroku
 
 ```
