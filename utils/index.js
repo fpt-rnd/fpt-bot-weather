@@ -125,7 +125,7 @@ exports.getLocation = function (req, res, callback) {
         location.getLocationWithQuickReplyFB(lat, long, function (result) {
             if (result.status) {
                 address = result.address;
-                message.sendMessagesConfirmLocation(res, address);
+                message.sendMessagesConfirmLocation(req, res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
