@@ -195,7 +195,7 @@ exports.greeting = function (req, res, originalRequest, callback) {
 }
 
 exports.giveAdvanceWeatherLocationWithDate = function (res, city, date) {
-    location.getLocationWithTextAddress(city, function (resultLocation) {
+    location.getLocationWithTextAddress(qs.escape(city), function (resultLocation) {
         if (resultLocation.status) {
             let reqAction = '';
             switch (date) {
