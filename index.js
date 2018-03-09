@@ -1,5 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const Mustache = require('mustache')
+const fs = require('fs');
 const app = express()
 
 const path = require('path');
@@ -8,6 +10,7 @@ global.rootPath = __dirname;
 
 const utilsIndex = require(global.rootPath + '/utils/index');
 const utilsConstants = require(global.rootPath + '/utils/constants');
+const handle = require(global.rootPath + '/handle/handle');
 
 
 // Connect to MongoDB
@@ -22,6 +25,21 @@ mongoose.connection.on('error', function (err) {
 
 app.use(bodyParser.json())
 app.use(express.static(path.join(global.rootPath, 'public')));
+
+app.get('/webChat', function (req, res) {
+  var view = {
+    appId: 151536275643885,
+    name: "",
+    phone: "",
+    address: ""
+  };
+  var html = Mustache.to_html(showWeb(), view);
+  res.send(html);
+});
+
+function showWeb() {
+  return fs.readFileSync(global.rootPath + '/web/index.html').toString();
+}
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -83,6 +101,7 @@ app.post('/webhook', function (req, res) {
       });
       break;
     case 'get.location':
+    case 'ask.weather':
       utilsIndex.getLocation(req, res, function (result) {
         return result.res;
       });
@@ -105,6 +124,16 @@ app.post('/webhook', function (req, res) {
       utilsIndex.getWeatherLocationNext(res, location, days, function (result) {
         return result.res;
       })
+      break;
+    case 'weather.give.advance':
+      location = req.body.result.parameters['location'];
+      date = req.body.result.parameters['date'];
+      utilsIndex.giveAdvanceWeatherLocationWithDate(res, location, date);
+      break;
+    case 'demo.flow':
+      handle.demoFlow(req, res, function (result) {
+        return result.res;
+      });
       break;
     default:
       break;

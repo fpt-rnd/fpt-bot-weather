@@ -102,7 +102,7 @@ exports.getWeatherLocationNext = function (res, location, days, callback) {
 }
 
 exports.getLocation = function (req, res, callback) {
-    if (req.body.originalRequest.data.message) {
+    if (req.body.originalRequest.data.message && req.body.result.action !== 'ask.weather') {
         let textLocation = req.body.originalRequest.data.message.text;
         // let queryTextLocation = textLocation.replace(/ /g, '+');
 
@@ -125,7 +125,19 @@ exports.getLocation = function (req, res, callback) {
         location.getLocationWithQuickReplyFB(lat, long, function (result) {
             if (result.status) {
                 address = result.address;
-                message.sendMessagesConfirmLocation(res, address);
+                message.sendMessagesConfirmLocation(req, res, address);
+            } else {
+                message.sendMessagesNotFoundLocation(res);
+            }
+        })
+    } else if (req.body.result.action === 'ask.weather') {
+        let textLocation = req.body.result.parameters['any']
+        location.getLocationWithTextAddress(qs.escape(textLocation), function (result) {
+            if (result.status) {
+                lat = result.lat;
+                long = result.long;
+                address = result.address;
+                message.sendMessagesConfirmLocation(req, res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
@@ -180,4 +192,60 @@ exports.greeting = function (req, res, originalRequest, callback) {
         }
     });
     return callback(res);
+}
+
+exports.giveAdvanceWeatherLocationWithDate = function (res, city, date) {
+    location.getLocationWithTextAddress(qs.escape(city), function (resultLocation) {
+        if (resultLocation.status) {
+            let reqAction = '';
+            switch (date) {
+                case 'today':
+                    reqAction = 'weather.forecast.today';
+                    break
+                case 'tomorrow':
+                    reqAction = 'weather.forecast.tomorrow';
+                    break
+                case 'next tomorrow':
+                    reqAction = 'weather.forecast.next.tomorrow';
+                    break;
+                default:
+                    message.sendMessages(res, 200, '', '', 'We only give advance within next 2 days', function (result) { });
+                    break;
+            }
+            if (reqAction != '') {
+                weather.getWetherForcastWithApi(resultLocation.lat, resultLocation.long, reqAction, function (result) {
+                    if (result.status) {
+                        giveAdvanceBaseOnWeather(res, result.data, address);
+                    } else {
+                        message.sendMessagesNotFoundDataWeather(res)
+                    };
+                })
+            }
+        } else {
+            message.sendMessages(res, 200, '', '', 'Can\'t find the location', function (result) { });
+        }
+    });
+}
+
+var giveAdvanceBaseOnWeather = function (res, weather, address) {
+    let advanceMessage = '';
+    switch (weather.conditions) {
+        case 'Rain':
+        case 'Chance of Rain':
+            advanceMessage = 'You should bring your the umbrella';
+            break;
+        case 'Mostly Cloudy':
+        case 'Partly Cloudy':
+            advanceMessage = 'It\'s great to participate in outdoor activities';
+            break;
+        case 'Scattered Clouds':
+        case 'Clear':
+            advanceMessage = 'Should bring something to cover your head';
+            break;
+        default:
+            advanceMessage = 'Enjoy your day';
+            break;
+    }
+
+    message.sendMessages(res, 200, '', '', advanceMessage, function (result) { });
 }
