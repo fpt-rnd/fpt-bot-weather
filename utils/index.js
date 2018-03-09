@@ -102,7 +102,7 @@ exports.getWeatherLocationNext = function (res, location, days, callback) {
 }
 
 exports.getLocation = function (req, res, callback) {
-    if (req.body.originalRequest.data.message) {
+    if (req.body.originalRequest.data.message && req.body.result.action !== 'ask.weather') {
         let textLocation = req.body.originalRequest.data.message.text;
         // let queryTextLocation = textLocation.replace(/ /g, '+');
 
@@ -111,7 +111,7 @@ exports.getLocation = function (req, res, callback) {
                 lat = result.lat;
                 long = result.long;
                 address = result.address;
-                message.sendMessagesConfirmLocation(res, address);
+                message.sendMessagesConfirmLocation(req, res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
@@ -126,6 +126,18 @@ exports.getLocation = function (req, res, callback) {
             if (result.status) {
                 address = result.address;
                 message.sendMessagesConfirmLocation(res, address);
+            } else {
+                message.sendMessagesNotFoundLocation(res);
+            }
+        })
+    } else if (req.body.result.action === 'ask.weather') {
+        let textLocation = req.body.result.parameters['any']
+        location.getLocationWithTextAddress(qs.escape(textLocation), function (result) {
+            if (result.status) {
+                lat = result.lat;
+                long = result.long;
+                address = result.address;
+                message.sendMessagesConfirmLocation(req, res, address);
             } else {
                 message.sendMessagesNotFoundLocation(res);
             }
@@ -149,7 +161,8 @@ exports.getWeatherForecast = function (req, res, reqAction, callback) {
 exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
     weather.getWetherForcastWithApi(lat, long, reqAction, function (result) {
         if (result.status) {
-            message.sendMessagesWeatherDetail(res, result, address)
+            data = result.data;
+            message.sendMessagesWeatherDetail(req, res, data, address)
         } else {
             message.sendMessagesNotFoundDataWeather(res)
         }
@@ -158,7 +171,7 @@ exports.getWeatherForecastDetail = function (req, res, reqAction, callback) {
     return callback(res);
 }
 
-exports.greeting = function (res, originalRequest, callback) {
+exports.greeting = function (req, res, originalRequest, callback) {
     utilsUserInfo.getUserInfo(originalRequest.source, originalRequest.data.sender.id, function (result) {
         if (!result.status) {
             utilsUserInfo.initUserInfo(originalRequest.source, originalRequest.data.sender.id, function (resultInit) {
@@ -167,7 +180,7 @@ exports.greeting = function (res, originalRequest, callback) {
                         'first_name': result.data.first_name,
                         'last_name': result.data.last_name
                     }
-                    message.sendMesssageGreeting(res, outputMessage);
+                    message.sendMesssageGreeting(req, res, outputMessage);
                 });
             });
         } else {
@@ -175,7 +188,7 @@ exports.greeting = function (res, originalRequest, callback) {
                 'first_name': result.data.first_name,
                 'last_name': result.data.last_name
             }
-            message.sendMesssageGreeting(res, outputMessage);
+            message.sendMesssageGreeting(req, res, outputMessage);
         }
     });
     return callback(res);
@@ -196,24 +209,25 @@ exports.giveAdvanceWeatherLocationWithDate = function (res, city, date) {
                     reqAction = 'weather.forecast.next.tomorrow';
                     break;
                 default:
-                    message.sendMessages('Can\'t find the location');
+                    message.sendMessages(res, 200, '', '', 'We only give advance within next 2 days', function (result) { });
                     break;
             }
-            weather.getWetherForcastWithApi(resultLocation.lat, resultLocation.long, reqAction, function (result) {
-                if (result.status) {
-                    giveAdvanceBaseOnWeather(res, result.data, address);
-                } else {
-                    message.sendMessagesNotFoundDataWeather(res)
-                };
-            })
+            if (reqAction != '') {
+                weather.getWetherForcastWithApi(resultLocation.lat, resultLocation.long, reqAction, function (result) {
+                    if (result.status) {
+                        giveAdvanceBaseOnWeather(res, result.data, address);
+                    } else {
+                        message.sendMessagesNotFoundDataWeather(res)
+                    };
+                })
+            }
         } else {
-            message.sendMessages('Can\'t find the location');
+            message.sendMessages(res, 200, '', '', 'Can\'t find the location', function (result) { });
         }
     });
 }
 
 var giveAdvanceBaseOnWeather = function (res, weather, address) {
-    console.log(weather);
     let advanceMessage = '';
     switch (weather.conditions) {
         case 'Rain':

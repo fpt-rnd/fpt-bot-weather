@@ -1,5 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const Mustache = require('mustache')
+const fs = require('fs');
 const app = express()
 
 const path = require('path');
@@ -22,6 +24,21 @@ mongoose.connection.on('error', function (err) {
 
 app.use(bodyParser.json())
 app.use(express.static(path.join(global.rootPath, 'public')));
+
+app.get('/webChat', function (req, res) {
+  var view = {
+    appId: 151536275643885,
+    name: "",
+    phone: "",
+    address: ""
+  };
+  var html = Mustache.to_html(showWeb(), view);
+  res.send(html);
+});
+
+function showWeb() {
+  return fs.readFileSync(global.rootPath + '/web/index.html').toString();
+}
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -54,7 +71,7 @@ app.post('/webhook', function (req, res) {
     if (req.body.result.action == 'greeting') {
       // get user info base on chat platform
       let originalRequest = req.body.originalRequest;
-      utilsIndex.greeting(res, originalRequest, function (result) {
+      utilsIndex.greeting(req, res, originalRequest, function (result) {
         return result.res;
       })
     }
@@ -83,6 +100,7 @@ app.post('/webhook', function (req, res) {
       });
       break;
     case 'get.location':
+    case 'ask.weather':
       utilsIndex.getLocation(req, res, function (result) {
         return result.res;
       });

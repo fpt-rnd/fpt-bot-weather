@@ -1,5 +1,6 @@
 const templatefb = require('./responsetemplatefb')
 const fbTemplate = require('./template_builder/botBuilder')
+const template_builder_fb = require('./template_builder_fb')
 
 exports.sendMessages = function (responses, statusCode, platForm, type, context, callback) {
     responses.status(statusCode).json({
@@ -76,31 +77,33 @@ exports.sendMessagesConfirmLocation = function (req, responses, address, callbac
         }
     ]
 
-    let data = req.body.result.fulfillment.messages
+    let messages = req.body.result.fulfillment.messages
     const quickReply = new fbTemplate.Text(`Your location: ${address.formatted_address}`);
-    for (i = 0; i < data.length; i++) {
-        if (data[i].platform === 'facebook') {
-            if (data[i].payload.type === 'quick_reply') {
-                for (j = 0; j < data[i].payload.data.item.length; j++) {
+    for (i = 0; i < messages.length; i++) {
+        if (messages[i].platform === 'facebook') {
+            if (messages[i].payload.type === 'quick_reply') {
+                for (j = 0; j < messages[i].payload.data.item.length; j++) {
                     quickReply
-                        .addQuickReply(data[i].payload.data.item[j].title, data[i].payload.data.item[j].payload, data[i].payload.data.item[j].image_url)
+                        .addQuickReply(messages[i].payload.data.item[j].title, messages[i].payload.data.item[j].payload, messages[i].payload.data.item[j].image_url)
                 }
             }
         }
     }
-    var abc = JSON.parse(JSON.stringify(new fbTemplate
-        .BaseTemplate()
-        .getApi([quickReply.get()])))
-    console.log(JSON.stringify(abc))
-
-    responses.status(200).json(abc);
-
-
+    
+    responses.status(200).json(
+        JSON.parse(
+            JSON.stringify(
+                new fbTemplate
+                    .BaseTemplate()
+                    .getApi([quickReply.get()])
+            )
+        )
+    );
 
     //templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }
 
-exports.sendMessagesWeatherDetail = function (responses, data, address) {
+exports.sendMessagesWeatherDetail = function (req, responses, data, address) {
     // let contextOut = [
     //     {
     //         name: "0Greeting-followup",
@@ -234,7 +237,7 @@ exports.sendMessagesNotFoundDataWeather = function (responses) {
     templatefb.templateMessages(responses, speech, [])
 }
 
-exports.sendMesssageGreeting = function (responses, data) {
+exports.sendMesssageGreeting = function (req, responses, data) {
     let facebook = [
         {
             attachment: {
@@ -259,5 +262,29 @@ exports.sendMesssageGreeting = function (responses, data) {
         }
     ];
 
-    templatefb.templateMessagesDataFb(responses, '', facebook, []);
+    let messages = req.body.result.fulfillment.messages
+    let button
+    for (i = 0; i < messages.length; i++) {
+        if (messages[i].platform === 'facebook') {
+            if (messages[i].payload.type === 'button') {
+                let title = ((messages[i].payload.data.title).replace('@first_name', data.first_name)).replace('@last_name', data.last_name)
+                let item = messages[i].payload.data.item
+                template_builder_fb.getButton(title, item, function(result) {
+                    button = result
+                }) 
+            }
+        }
+    }
+
+    responses.status(200).json(
+        JSON.parse(
+            JSON.stringify(
+                new fbTemplate
+                    .BaseTemplate()
+                    .getApi([button.get()])
+            )
+        )
+    );
+
+    //templatefb.templateMessagesDataFb(responses, '', facebook, []);
 }
