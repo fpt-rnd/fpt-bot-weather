@@ -3,43 +3,50 @@ const fbTemplate = require(global.rootPath + '/controller/template_builder/botBu
 
 exports.demoFlow = function (req, res, callback) {
 
-    let messages = req.body.result.fulfillment.messages
-    let data = []
-    let fbtemplates = []
+    let messages = req.body.result.fulfillment.messages;
+    let data = fbtemplates = [];
 
-    for (i = 0; i < messages.length; i++) {
-        if (messages[i].platform === 'facebook') {
+    messages.forEach(message => {
+        if (message.platform === 'facebook') {
             let arr = {
-                    'template_type': messages[i].payload.type,
-                    'title': messages[i].payload.data.title,
-                    'item': messages[i].payload.data.item
-                }
+                'template_type': message.payload.type,
+                'title': message.payload.data.title,
+                'item': message.payload.data.item
+            }
             data.push(arr);
         }
-    }
+    });
 
-    console.log(data);
+    getTemplate(data, function (result) {
+        fbtemplates = result;
+    });
 
-    for (i = 0; i < data.length; i++) {
-        console.log(i)
-        let arr
-        new maping_template.Maping(data[i].template_type, data[i].title, data[i].item, function (result) {
-            arr = result;
-        });
-        fbtemplates.push(arr);
-    }
-
-    console.log(fbtemplates)
     res.status(200).json(
         JSON.parse(
             JSON.stringify(
                 new fbTemplate
                     .BaseTemplate()
-                    .getApi([fbtemplates[0].get()])
+                    .getApi(fbtemplates)
             )
         )
     );
 
     return callback(res);
 
+}
+
+var getTemplate = function (data, callback) {
+    let fbtemplates = [];
+
+    if (data.length !== 0) {
+        data.forEach(dataTemplate => {
+            let arr;
+            new maping_template.Maping(dataTemplate.template_type, dataTemplate, function (result) {
+                arr = result.get();
+            });
+            fbtemplates.push(arr);
+        });
+    }
+
+    return callback(fbtemplates);
 }
