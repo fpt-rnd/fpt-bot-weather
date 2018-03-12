@@ -1,7 +1,7 @@
 const request = require('request');
 const buildUrl = require('build-url');
 
-const FACEBOOK_ACCESS_TOKEN = 'EAAHZCZADLZCfXQBADZCvK3C6MZCO1zcCDr2MhAdYUsRYLF0qUyuTJymCYtX2BGCpR4XAy6v0ZAKJS9IA2ynV01NADrg1AdNwPhdpjF18RsspRZCp55ZAFvTH82MZBPxu9IHaK8ACdsYZCSQwNZArVqDSbg3yH7Dl1DeBTec7i0mi0w7owZDZD';
+const FACEBOOK_ACCESS_TOKEN = 'EAACJ0knhXe0BAJxhs1dH1etvKLAKSDCTIe7LFhlkyb0QYJj5JerFdohKEmop663wJGAi05zZAjbXxVjazZBzte50LZAtvfD8oLZBSm7j6m4xRw8ROyvrdgEjEWyXJGYOwqNa0ZAdaysipkg1nTwDuDJrmlspY4oQeq6n5PIBaYkAt42JZBPlZCq';
 const BASE_URL = 'https://graph.facebook.com/v2.6/';
 
 exports.getUserInformation = function (id, callback) {
