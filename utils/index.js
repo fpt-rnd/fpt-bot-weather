@@ -131,7 +131,7 @@ exports.getLocation = function (req, res, callback) {
             }
         })
     } else if (req.body.result.action === 'ask.weather') {
-        let textLocation = req.body.result.parameters['any']
+        let textLocation = req.body.result.parameters['location']
         location.getLocationWithTextAddress(qs.escape(textLocation), function (result) {
             if (result.status) {
                 lat = result.lat;
